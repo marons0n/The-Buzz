@@ -76,3 +76,29 @@
    - **Purpose**: Remove a specific entry from a table
    - **Response**: 204 No Content
 
+# Tests for User Stories
+
+- **Create test to verify that HTTP routes were created and successfully transferred** (automatic for stories 1-4).
+- **For story 5**: Manual test to use `curl` to retrieve the number of likes on a post.
+
+## Unit Tests for Backend, Web, Mobile, and Admin
+
+### Backend
+- **POST/PUT/GET/DELETE** requests reflected in Supabase and backend.
+- **Button clicks** reflected in Supabase and in backend.
+- **Server returns error codes.**
+
+### Web
+- **Deleting messages** removes them.
+- **Liking messages** changes the appearance / increases counter.
+- **Scrolling** works.
+
+### Mobile
+- **Can connect** to backend.
+- **Liking messages** changes appearance / increases counter.
+- **Scrolling** displays different content.
+
+### Admin
+- Admin uses **addTable**, **dropTable**, **editTable**.
+- Changes reflected in backend.
+
