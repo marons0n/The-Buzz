@@ -1,4 +1,4 @@
-User Stories for The Buzz
+# **User Stories for The Buzz**
 Anonymous User Stories
 As an anonymous user, I want to view a list of ideas so that I can see what others are sharing.
 As an anonymous user, I want to post a new idea so that I can share my thoughts with others.
