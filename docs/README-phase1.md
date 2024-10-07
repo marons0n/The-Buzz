@@ -15,5 +15,5 @@ As an admin, I want to remove specific entries from database tables to manage da
 ERD
 ![Alt text](ERT.png)
 System Design
-
+![Alt text](SystemDesign.png)
 
