@@ -18,6 +18,8 @@
 ![Alt text](ERT.png)
 # **System Design**
 ![Alt text](SystemDesign.png)
+# **State Machine**
+![Alt text](StateMachine.png)
 
 # API Routes for The Buzz
 
