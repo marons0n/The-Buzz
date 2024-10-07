@@ -14,6 +14,8 @@
 - **As an admin, I want to create new database tables to support future features.**
 - **As an admin, I want to drop database tables that are no longer needed.**
 - **As an admin, I want to remove specific entries from database tables to manage data accurately.**
+# Mock Web/Mobile
+![Alt text](Mobile.png)
 # **ERD**
 ![Alt text](ERT.png)
 # **System Design**
