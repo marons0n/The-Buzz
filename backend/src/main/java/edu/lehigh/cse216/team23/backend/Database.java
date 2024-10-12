@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.ArrayList;
 
 public class Database {
-    public static record RowData (int mId, String mTitle, String mMessage) {}
+    public static record RowData (int mId, int mLikes, String mMessage) {}
 
     private Connection mConnection;
 
@@ -120,9 +120,9 @@ public class Database {
 
     private PreparedStatement mCreateTable;
     private static final String SQL_CREATE_TABLE= 
-            "CREATE TABLE tblData (" +
+            "CREATE TABLE ideas_tbl (" +
             " id SERIAL PRIMARY KEY," +
-            " subject VARCHAR(50) NOT NULL," +
+            " likes INT NOT NULL," +
             " message VARCHAR(500) NOT NULL)";
 
     /** safely performs mCreateTable = mConnection.prepareStatement(SQL_CREATE_TABLE); */
@@ -140,7 +140,7 @@ public class Database {
     }
 
     /**
-     * Create tblData.  If it already exists, this will print an error
+     * Create ideas_tbl.  If it already exists, this will print an error
      */
     void createTable() {
         if(mCreateTable == null)
@@ -154,15 +154,15 @@ public class Database {
     }
 
     private PreparedStatement mDropTable;
-    private static final String SQL_DROP_TABLE_TBLDATA = "DROP TABLE tblData";
+    private static final String SQL_DROP_TABLE_IDEAS_TBL = "DROP TABLE ideas_tbl";
 
     private boolean init_mDropTable() {
         // return true on success, false otherwise
         try {
-            mDropTable = mConnection.prepareStatement( SQL_DROP_TABLE_TBLDATA );
+            mDropTable = mConnection.prepareStatement( SQL_DROP_TABLE_IDEAS_TBL );
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mDropTable");
-            System.err.println("Using SQL: " + SQL_DROP_TABLE_TBLDATA);
+            System.err.println("Using SQL: " + SQL_DROP_TABLE_IDEAS_TBL);
             e.printStackTrace();
             return false;
         }
@@ -170,7 +170,7 @@ public class Database {
     }
 
     /**
-     * Remove tblData from the database.  If it does not exist, this will print
+     * Remove ideas_tbl table from the database.  If it does not exist, this will print
      * an error.
      */
     void dropTable() {
@@ -186,18 +186,18 @@ public class Database {
 
     private PreparedStatement mInsertOne;
     /** the SQL for mInsertOne */
-    private static final String SQL_INSERT_ONE_TBLDATA = 
-            "INSERT INTO tblData" + 
+    private static final String SQL_INSERT_ONE_IDEAS_TBL = 
+            "INSERT INTO ideas_tbl" + 
             " VALUES (default, ?, ?);";
 
-    /** safely performs mInsertOne = mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?)"); */
+    /** safely performs mInsertOne = mConnection.prepareStatement("INSERT INTO ideas_tbl VALUES (default, ?, ?)"); */
     private boolean init_mInsertOne(){
         // return true on success, false otherwise
         try {
-            mInsertOne = mConnection.prepareStatement( SQL_INSERT_ONE_TBLDATA );
+            mInsertOne = mConnection.prepareStatement( SQL_INSERT_ONE_IDEAS_TBL );
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mInsertOne");
-            System.err.println("Using SQL: " + SQL_INSERT_ONE_TBLDATA);
+            System.err.println("Using SQL: " + SQL_INSERT_ONE_IDEAS_TBL);
             e.printStackTrace();
             this.disconnect();  // @TODO is disconnecting on exception what we want?
             return false;
@@ -207,17 +207,17 @@ public class Database {
 
     /**
      * Insert a row into the database
-     * @param subject The subject for this new row
+     * @param likes The lieks for this new row
      * @param message The message body for this new row
      * @return The number of rows that were inserted
      */
-    int insertRow(String subject, String message) {
+    int insertRow(int likes, String message) {
         if( mInsertOne == null )  // not yet initialized, do lazy init
             init_mInsertOne();    // lazy init
         int count = 0;
         try {
             System.out.println( "Database operation: insertRow(String, String)" );
-            mInsertOne.setString(1, subject);
+            mInsertOne.setInt(1, likes);
             mInsertOne.setString(2, message);
             count += mInsertOne.executeUpdate();
         } catch (SQLException e) {
@@ -228,26 +228,26 @@ public class Database {
 
     private PreparedStatement mUpdateOne;
     /** the SQL for mUpdateOne */
-    private static final String SQL_UPDATE_ONE_TBLDATA = 
-            "UPDATE tblData" + 
+    private static final String SQL_UPDATE_ONE_IDEAS_TBL = 
+            "UPDATE ideas_tbl" + 
             " SET message = ?" +
             " WHERE id = ?";
 
     private PreparedStatement mUpdateOne_2arg;
     /** the SQL for mUpdateOne */
-    private static final String SQL_UPDATE_ONE_TBLDATA_2ARG = 
-            "UPDATE tblData" + 
-            " SET subject = ?, message = ?" + 
+    private static final String SQL_UPDATE_ONE_IDEAS_TBL_2ARG = 
+            "UPDATE ideas_tbl" + 
+            " SET likes = ?, message = ?" + 
             " WHERE id = ?";
 
-    /** safely performs mUpdateOne = mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?"); */
+    /** safely performs mUpdateOne = mConnection.prepareStatement("UPDATE ideas_tbl SET message = ? WHERE id = ?"); */
     private boolean init_mUpdateOne(){
         // return true on success, false otherwise
         try {
-            mUpdateOne = mConnection.prepareStatement( SQL_UPDATE_ONE_TBLDATA );
+            mUpdateOne = mConnection.prepareStatement( SQL_UPDATE_ONE_IDEAS_TBL );
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mUpdateOne");
-            System.err.println("Using SQL: " + SQL_UPDATE_ONE_TBLDATA);
+            System.err.println("Using SQL: " + SQL_UPDATE_ONE_IDEAS_TBL);
             e.printStackTrace();
             this.disconnect();  // @TODO is disconnecting on exception what we want?
             return false;
@@ -255,14 +255,14 @@ public class Database {
         return true;
     }
 
-     /** safely performs mUpdateOne = mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?"); */
+     /** safely performs mUpdateOne = mConnection.prepareStatement("UPDATE ideas SET message = ? WHERE id = ?"); */
      private boolean init_mUpdateOne_2arg(){
         // return true on success, false otherwise
         try {
-            mUpdateOne_2arg = mConnection.prepareStatement( SQL_UPDATE_ONE_TBLDATA_2ARG );
+            mUpdateOne_2arg = mConnection.prepareStatement( SQL_UPDATE_ONE_IDEAS_TBL_2ARG );
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mUpdateOne");
-            System.err.println("Using SQL: " + SQL_UPDATE_ONE_TBLDATA_2ARG);
+            System.err.println("Using SQL: " + SQL_UPDATE_ONE_IDEAS_TBL_2ARG);
             e.printStackTrace();
             this.disconnect();  // @TODO is disconnecting on exception what we want?
             return false;
@@ -271,20 +271,25 @@ public class Database {
     }
 
     /**
-     * Update the subject and message for a row in the database
+     * Update the likes and message for a row in the database
      * @param id The id of the row to update
-     * @param subject The new message subject
+     * @param likes The new message likes
      * @param message The new message contents
      * @return The number of rows that were updated.  -1 indicates an error.
      */
-    int updateOne(int id, String subject, String message) {
+    int updateOne(int id, int likes/*, String message*/) {
         if( mUpdateOne_2arg == null )  // not yet initialized, do lazy init
             init_mUpdateOne_2arg();    // lazy init
         int res = -1;
         try {
-            System.out.println( "Database operation: updateOne(int id, String subject, String message)" );
-            mUpdateOne_2arg.setString(1, subject);
-            mUpdateOne_2arg.setString(2, message);
+            System.out.println( "Database operation: updateOne(int id, String likes, String message)" );
+            if(likes == 1){
+                mUpdateOne_2arg.setInt(1, (selectOne(id).mLikes + 1)); //adds 1 like
+            }else if(likes == -1){
+                mUpdateOne_2arg.setInt(1, (selectOne(id).mLikes + 1)); //removes 1 like
+            }//if anything else than 1 or -1 is passed nothing is going to happen
+            
+            mUpdateOne_2arg.setString(2, selectOne(id).mMessage); //just keeps the message the same because we only wanna update likes
             mUpdateOne_2arg.setInt(3, id);
             res = mUpdateOne_2arg.executeUpdate();
         } catch (SQLException e) {
@@ -296,7 +301,7 @@ public class Database {
     private PreparedStatement mDeleteOne;
     /** the SQL for mDeleteOne */
     private static final String SQL_DELETE_ONE = 
-            "DELETE FROM tblData" + 
+            "DELETE FROM ideas_tbl" + 
             " WHERE id = ?";
 
     /** safely performs mDeleteOne = mConnection.prepareStatement(SQL_DELETE_ONE); */
@@ -334,16 +339,16 @@ public class Database {
     }
 
     private PreparedStatement mSelectAll;
-    private static final String SQL_SELECT_ALL_TBLDATA = 
-            "SELECT id, subject" +
-            " FROM tblData;";
+    private static final String SQL_SELECT_ALL_IDEAS_TBL = 
+            "SELECT id, likes" +
+            " FROM ideas_tbl;";
 
     private boolean init_mSelectAll() {
         try {
-            mSelectAll = mConnection.prepareStatement(SQL_SELECT_ALL_TBLDATA);
+            mSelectAll = mConnection.prepareStatement(SQL_SELECT_ALL_IDEAS_TBL);
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mSelectAll");
-            System.err.println("Using SQL: " + SQL_SELECT_ALL_TBLDATA);
+            System.err.println("Using SQL: " + SQL_SELECT_ALL_IDEAS_TBL);
             e.printStackTrace();
             this.disconnect();  // @TODO is disconnecting on exception what we want?
             return false;
@@ -360,8 +365,8 @@ public class Database {
             ResultSet rs = mSelectAll.executeQuery();
             while(rs.next()) {
                 int id = rs.getInt("id");
-                String subject = rs.getString("subject");
-                RowData data = new RowData(id, subject, null);
+                int likes = rs.getInt("likes");
+                RowData data = new RowData(id, likes, null);
                 res.add(data);
             }
             rs.close();
@@ -374,19 +379,19 @@ public class Database {
 
     private PreparedStatement mSelectOne;
     /** the SQL for mSelectOne */
-    private static final String SQL_SELECT_ONE_TBLDATA = 
+    private static final String SQL_SELECT_ONE_IDEAS_TBL = 
             "SELECT *" + 
-            " FROM tblData" +
+            " FROM ideas_tbl" +
             " WHERE id=? ;";
 
-    /** safely performs mSelectOne = mConnection.prepareStatement("SELECT * from tblData WHERE id=?"); */
+    /** safely performs mSelectOne = mConnection.prepareStatement("SELECT * from ideas_tbl WHERE id=?"); */
     private boolean init_mSelectOne(){
         // return true on success, false otherwise
         try {
-            mSelectOne = mConnection.prepareStatement( SQL_SELECT_ONE_TBLDATA );
+            mSelectOne = mConnection.prepareStatement( SQL_SELECT_ONE_IDEAS_TBL );
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mSelectOne");
-            System.err.println("Using SQL: " + SQL_SELECT_ONE_TBLDATA);
+            System.err.println("Using SQL: " + SQL_SELECT_ONE_IDEAS_TBL);
             e.printStackTrace();
             this.disconnect();  // @TODO is disconnecting on exception what we want?
             return false;
@@ -409,9 +414,9 @@ public class Database {
             ResultSet rs = mSelectOne.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("id");
-                String subject = rs.getString("subject");
+                int likes = rs.getInt("likes");
                 String message = rs.getString("message");
-                data = new RowData(id, subject, message);
+                data = new RowData(id, likes, message);
             }
             rs.close();  // remember to close the result set
         } catch (SQLException e) {
