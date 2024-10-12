@@ -1,0 +1,29 @@
+commit dc20dd6decad738720a4799fe0348803bc9d58bb
+Author: Evan Smith <evansmith@dyn235020.cc.lehigh.edu>
+Date:   Sun Oct 6 12:45:59 2024 -0400
+
+    deleted extra file
+
+commit e0ae4e08b4e61f0692571c95f74e0d3e566cf2d9
+Author: Evan Smith <evansmith@dyn235020.cc.lehigh.edu>
+Date:   Sun Oct 6 12:42:14 2024 -0400
+
+    added folders
+
+commit 24d5096e3256ae17e2d2fea658623f62442da80d
+Author: Evan Smith <evansmith@dyn235020.cc.lehigh.edu>
+Date:   Sun Oct 6 12:39:09 2024 -0400
+
+    deleted ignore and readme to aboid merge conflicts
+
+commit 9c95a6c840131de7c4be9fdbe691a3547c3c7ae9
+Author: Evan Smith <evansmith@dyn235020.cc.lehigh.edu>
+Date:   Sun Oct 6 12:33:13 2024 -0400
+
+    System drawing
+
+commit dafde6b35784d473c389a99884f609abf32fc76d
+Author: Stephen Lee-Urban <sml3@lehigh.edu>
+Date:   Wed Oct 2 22:46:01 2024 -0400
+
+    Initialized repository with a rudimentary README and .gitignore

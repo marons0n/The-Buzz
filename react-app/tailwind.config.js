@@ -13,12 +13,12 @@ module.exports = {
     extend: {
       colors: {
         'blue': {
-          500: '#0078d4', // Microsoft blue
+          500: '#0078d4', 
           600: '#106ebe',
           700: '#005a9e',
         }
       }
     }
   },
-  // ... other configurations
+  
 }
