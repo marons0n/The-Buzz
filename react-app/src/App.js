@@ -1,35 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import HomePage from './pages/HomePage';
+import FeaturesPage from './pages/FeaturesPage';
+import SignupPage from './pages/SignupPage';
+import LoginPage from './pages/LoginPage';
+import AboutUsPage from './pages/AboutUsPage';
+import IdeasPage from './pages/IdeasPage' ;
+// Import other components as needed
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1>Welcome to The Buzz</h1>
-        <p>
-          Share your ideas and connect with others. Like and share posts to keep the buzz going!
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-      <main>
-        <section className="posts">
-          <h2>Latest Posts</h2>
-          {/* Add components or code to display posts here */}
-        </section>
-        <section className="share-idea">
-          <h2>Share Your Idea</h2>
-          {/* Add components or code to share a new idea here */}
-        </section>
-      </main>
-    </div>
+    <Router>
+      <div className="App">
+        <Header />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/features" element={<FeaturesPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/about" element={<AboutUsPage />} />
+            <Route path="/ideas" element={<IdeasPage />} />
+            {/* Add other routes here */}
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
