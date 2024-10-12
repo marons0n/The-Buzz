@@ -5,6 +5,7 @@
 - Team Number: 23
 - Team Name: team_23
 - Team Members:
+<<<<<<< HEAD
     Lily Fandre lmf226@lehigh.edu
     Matthew Aronson maa326@lehigh.edu
     Stefania Dzhaman sad823@lehigh.edu
@@ -36,3 +37,13 @@
     git remote add dokku dokku@dokku.cse.lehigh.edu:2024fa-tutorial-wdn225
     git push dokku main
     ```
+=======
+    - PM: Lily Fandre <lmf226@lehigh.edu>
+	- Backend: Matthew Aronson <maa326@lehigh.edu>
+	- Mobile: Stefania Dzhaman <sad823@lehigh.edu>
+	- Web: Warren Noubi <wdn225@lehigh.edu>
+	- Admin: Andre Escobedo <aae225@lehigh.edu>
+- Bitbucket Repository: <https://bitbucket.org/sml3/cse216_fa24_team_23>
+- Jira Board: <https://cse216-fa24-team-23.atlassian.net>
+- Dokku: <https://team-untitled-23.dokku.cse.lehigh.edu>
+>>>>>>> origin/main
