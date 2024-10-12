@@ -1,104 +1,109 @@
-/* IdeasPage.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .ideas-page {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .ideas-header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
+.ideas-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.ideas-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  border-radius: 12px;
+  color: white;
+}
+
+.ideas-header h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ideas-header h1 svg {
+  margin-right: 10px;
+}
+
+.ideas-header p {
+  font-size: 1.2rem;
+  font-weight: 300;
+  margin-bottom: 25px;
+}
+
+.toggle-form-btn {
+  background-color: white;
+  color: #6e8efb;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-form-btn:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.idea-form-container {
+  max-width: 700px;
+  margin: 0 auto 40px;
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ideas-container h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 25px;
+  text-align: center;
+  position: relative;
+}
+
+.ideas-container h2::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 4px;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  margin: 15px auto 0;
+  border-radius: 2px;
+}
+
+.error-message {
+  background-color: #ffe5e5;
+  color: #d8000c;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.error-message svg {
+  margin-right: 10px;
+}
+
+@media (max-width: 768px) {
   .ideas-header h1 {
-    font-size: 2.5em;
-    margin: 0;
+    font-size: 2.2rem;
   }
-  
-  .ideas-header p {
-    font-size: 1.2em;
-    color: #666;
+
+  .ideas-container h2 {
+    font-size: 1.8rem;
   }
-  
-  .idea-form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  .idea-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .idea-form input,
-  .idea-form textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .idea-form button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .idea-form button:hover {
-    background-color: #0056b3;
-  }
-  
-  .idea-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .idea-card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .idea-card h2 {
-    margin: 0 0 10px;
-  }
-  
-  .idea-card p {
-    margin: 0 0 10px;
-    color: #666;
-  }
-  
-  .idea-card .idea-meta {
-    font-size: 0.9em;
-    color: #999;
-  }
-  
-  .idea-card .like-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    font-size: 1em;
-  }
-  
-  .idea-card .like-button:hover {
-    color: #0056b3;
-  }
+}

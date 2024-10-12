@@ -1,57 +1,98 @@
-/* IdeaList.css */
+.idea-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
 
-.idea-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    background-color: #f4f4f9;
+.idea-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.idea-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.idea-message {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.idea-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.like-button {
+  background: none;
+  border: none;
+  color: #6e8efb;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.like-button:hover {
+  color: #a777e3;
+}
+
+.like-button svg {
+  margin-right: 5px;
+}
+
+.loading,
+.error,
+.no-ideas {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spinner {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  color: #d8000c;
+  background-color: #ffe5e5;
+  border-radius: 8px;
+}
+
+.error svg,
+.loading svg {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .idea-grid {
+    grid-template-columns: 1fr;
   }
-  
-  .idea-card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-  }
-  
-  .idea-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .idea-card h2 {
-    margin: 0 0 10px;
-    font-size: 1.5em;
-    color: #333;
-  }
-  
-  .idea-card p {
-    margin: 0 0 10px;
-    color: #666;
-  }
-  
-  .idea-meta {
-    font-size: 0.9em;
-    color: #999;
-    margin-bottom: 10px;
-  }
-  
-  .like-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    font-size: 1em;
-    display: flex;
-    align-items: center;
-  }
-  
-  .like-button:hover {
-    color: #0056b3;
-  }
-  
-  .like-button::before {
-    content: '👍';
-    margin-right: 5px;
-  }
+}
