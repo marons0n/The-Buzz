@@ -19,25 +19,25 @@ public class Database {
 
     // SQL Queries
     private static final String SQL_CREATE_TABLE = 
-            "CREATE TABLE IF NOT EXISTS tblData (" + 
+            "CREATE TABLE IF NOT EXISTS ideas_tbl (" + 
             " id SERIAL PRIMARY KEY," + 
             " subject VARCHAR(50) NOT NULL," +
             " message VARCHAR(500) NOT NULL)";
     
-    private static final String SQL_DROP_TABLE_TBLDATA = "DROP TABLE IF EXISTS tblData";
+    private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
-    private static final String SQL_INSERT_ONE_TBLDATA = 
-            "INSERT INTO tblData (subject, message) VALUES (?, ?)";
+    private static final String SQL_INSERT_ONE_IDEAS = 
+            "INSERT INTO ideas_tbl (subject, message) VALUES (?, ?)";
 
-    private static final String SQL_UPDATE_ONE_TBLDATA = 
-            "UPDATE tblData SET message = ? WHERE id = ?";
+    private static final String SQL_UPDATE_ONE_IDEAS = 
+            "UPDATE ideas_tbl SET message = ? WHERE id = ?";
 
-    private static final String SQL_DELETE_ONE = "DELETE FROM tblData WHERE id = ?";
+    private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
-    private static final String SQL_SELECT_ALL_TBLDATA = "SELECT id, subject FROM tblData";
+    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, subject FROM ideas_tbl";
 
-    private static final String SQL_SELECT_ONE_TBLDATA = 
-            "SELECT * FROM tblData WHERE id = ?";
+    private static final String SQL_SELECT_ONE_IDEAS = 
+            "SELECT * FROM ideas_tbl WHERE id = ?";
 
     // Prepared Statements
     private PreparedStatement mCreateTable;
@@ -49,7 +49,7 @@ public class Database {
     private PreparedStatement mSelectOne;
 
     /**
-     * Creates the `tblData` table in the database if it doesn't exist.
+     * Creates the `ideas_tbl` table in the database if it doesn't exist.
      */
     void createTable() {
         if (mCreateTable == null) init_mCreateTable();
@@ -74,7 +74,7 @@ public class Database {
     }
 
     /**
-     * Drops the `tblData` table from the database.
+     * Drops the `ideas_tbl` table from the database.
      */
     void dropTable() {
         if (mDropTable == null) init_mDropTable();
@@ -88,7 +88,7 @@ public class Database {
 
     private boolean init_mDropTable() {
         try {
-            mDropTable = mConnection.prepareStatement(SQL_DROP_TABLE_TBLDATA);
+            mDropTable = mConnection.prepareStatement(SQL_DROP_TABLE_IDEAS);
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mDropTable");
             e.printStackTrace();
@@ -99,7 +99,7 @@ public class Database {
     }
 
     /**
-     * Inserts a row into the `tblData` table.
+     * Inserts a row into the `ideas_tbl` table.
      */
     int insertRow(String subject, String message) {
         if (mInsertOne == null) init_mInsertOne();
@@ -117,7 +117,7 @@ public class Database {
 
     private boolean init_mInsertOne() {
         try {
-            mInsertOne = mConnection.prepareStatement(SQL_INSERT_ONE_TBLDATA);
+            mInsertOne = mConnection.prepareStatement(SQL_INSERT_ONE_IDEAS);
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mInsertOne");
             e.printStackTrace();
@@ -128,7 +128,7 @@ public class Database {
     }
 
     /**
-     * Updates a row in the `tblData` table by ID.
+     * Updates a row in the `ideas_tbl` table by ID.
      */
     int updateOne(int id, String message) {
         if (mUpdateOne == null) init_mUpdateOne();
@@ -146,7 +146,7 @@ public class Database {
 
     private boolean init_mUpdateOne() {
         try {
-            mUpdateOne = mConnection.prepareStatement(SQL_UPDATE_ONE_TBLDATA);
+            mUpdateOne = mConnection.prepareStatement(SQL_UPDATE_ONE_IDEAS);
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mUpdateOne");
             e.printStackTrace();
@@ -157,7 +157,7 @@ public class Database {
     }
 
     /**
-     * Deletes a row from the `tblData` table by ID.
+     * Deletes a row from the `ideas_tbl` table by ID.
      */
     int deleteRow(int id) {
         if (mDeleteOne == null) init_mDeleteOne();
@@ -185,7 +185,7 @@ public class Database {
     }
 
     /**
-     * Selects all rows from the `tblData` table.
+     * Selects all rows from the `ideas_tbl` table.
      */
     ArrayList<RowData> selectAll() {
         if (mSelectAll == null) init_mSelectAll();
@@ -207,7 +207,7 @@ public class Database {
 
     private boolean init_mSelectAll() {
         try {
-            mSelectAll = mConnection.prepareStatement(SQL_SELECT_ALL_TBLDATA);
+            mSelectAll = mConnection.prepareStatement(SQL_SELECT_ALL_IDEAS);
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mSelectAll");
             e.printStackTrace();
@@ -218,7 +218,7 @@ public class Database {
     }
 
     /**
-     * Selects a single row from the `tblData` table by ID.
+     * Selects a single row from the `ideas_tbl` table by ID.
      */
     RowData selectOne(int id) {
         if (mSelectOne == null) init_mSelectOne();
@@ -241,7 +241,7 @@ public class Database {
 
     private boolean init_mSelectOne() {
         try {
-            mSelectOne = mConnection.prepareStatement(SQL_SELECT_ONE_TBLDATA);
+            mSelectOne = mConnection.prepareStatement(SQL_SELECT_ONE_IDEAS);
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mSelectOne");
             e.printStackTrace();
