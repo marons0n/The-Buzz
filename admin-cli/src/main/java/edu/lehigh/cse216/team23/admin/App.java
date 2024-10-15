@@ -13,7 +13,9 @@ import java.util.ArrayList;
 public class App {
 
     public static void main(String[] argv) {
-        // Display menu and process CLI commands
+        // Display the menu at startup
+        menu();
+        // Start the CLI loop to process user commands
         mainCliLoop(argv);
     }
 
@@ -216,7 +218,7 @@ public class App {
      */
     static String getString(BufferedReader in, String prompt) {
         try {
-            System.out.print(prompt + " :> ");
+            System.out.print(prompt + " : ");
             return in.readLine();
         } catch (IOException e) {
             e.printStackTrace();
@@ -224,6 +226,3 @@ public class App {
         }
     }
 }
-
-
-//hello.
