@@ -286,7 +286,7 @@ public class Database {
             if(likes == 1){
                 mUpdateOne_2arg.setInt(1, (selectOne(id).mLikes + 1)); //adds 1 like
             }else if(likes == -1){
-                mUpdateOne_2arg.setInt(1, (selectOne(id).mLikes + 1)); //removes 1 like
+                mUpdateOne_2arg.setInt(1, (selectOne(id).mLikes - 1)); //removes 1 like
             }//if anything else than 1 or -1 is passed nothing is going to happen
             
             mUpdateOne_2arg.setString(2, selectOne(id).mMessage); //just keeps the message the same because we only wanna update likes
