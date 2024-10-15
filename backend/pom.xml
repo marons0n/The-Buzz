@@ -22,6 +22,7 @@
                 <mainClass>edu.lehigh.cse216.team23.backend.App</mainClass>
             </configuration>
         </plugin>
+
         <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <executions>
@@ -43,6 +44,7 @@
                 </archive>
             </configuration>
         </plugin>
+        
     </plugins>
   </build>
   <dependencies>
