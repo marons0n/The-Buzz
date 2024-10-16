@@ -1,24 +1,27 @@
 /// Create object from data like: http://www.cse.lehigh.edu/~spear/5k.json
 class NumberWordPair {
   /// The string representation of the number
-  final String str; 
+  final int mId; //changed type from String to int 
   /// The int representation of the number
-  final int num;
+  final int mLikes;
 
   const NumberWordPair({
-    required this.str,
-    required this.num,
+    required this.mId,
+    required this.mLikes,
   });
 
   factory NumberWordPair.fromJson(Map<String, dynamic> json) {
     return NumberWordPair(
-      str: json['str'],
-      num: json['num'],
+      mId: json['mId'],
+      mLikes: json['mLikes'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'str': str,
-    'num': num,
+    'mId': mId,
+    'mLikes': mLikes,
   };
+  String toString(){
+    return 'NumberWordPair: {mId: $mId, mLikes: $mLikes}';
+  }
 }
