@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class Database {
 
-    public static record RowData(int mId, String mSubject, String mMessage) {}
+    public static record RowData(int mId, String mSubject, String mMessage, int mLikes) {}
 
     private Connection mConnection;
 
@@ -22,19 +22,20 @@ public class Database {
             "CREATE TABLE IF NOT EXISTS ideas_tbl (" + 
             " id SERIAL PRIMARY KEY," + 
             " subject VARCHAR(50) NOT NULL," +
-            " message VARCHAR(500) NOT NULL)";
+            " message VARCHAR(500) NOT NULL," +
+            " likes INT DEFAULT 0 NOT NULL)";
     
     private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
     private static final String SQL_INSERT_ONE_IDEAS = 
-            "INSERT INTO ideas_tbl (subject, message) VALUES (?, ?)";
+            "INSERT INTO ideas_tbl (subject, message, likes) VALUES (?, ?, 0)";
 
     private static final String SQL_UPDATE_ONE_IDEAS = 
             "UPDATE ideas_tbl SET message = ? WHERE id = ?";
 
     private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
-    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, subject FROM ideas_tbl";
+    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, subject, message, likes FROM ideas_tbl";
 
     private static final String SQL_SELECT_ONE_IDEAS = 
             "SELECT * FROM ideas_tbl WHERE id = ?";
@@ -196,7 +197,9 @@ public class Database {
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String subject = rs.getString("subject");
-                res.add(new RowData(id, subject, null));
+                String message = rs.getString("message");
+                int likes = rs.getInt("likes");
+                res.add(new RowData(id, subject, message, likes));
             }
             rs.close();
         } catch (SQLException e) {
@@ -230,7 +233,8 @@ public class Database {
             if (rs.next()) {
                 String subject = rs.getString("subject");
                 String message = rs.getString("message");
-                data = new RowData(id, subject, message);
+                int likes = rs.getInt("likes");
+                data = new RowData(id, subject, message, likes);
             }
             rs.close();
         } catch (SQLException e) {

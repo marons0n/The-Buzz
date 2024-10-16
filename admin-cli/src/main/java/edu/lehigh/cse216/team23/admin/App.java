@@ -121,7 +121,7 @@ public class App {
         if (id == -1) return;
         Database.RowData row = db.selectOne(id);
         if (row != null) {
-            System.out.println("Row [" + row.mId() + "]: " + row.mSubject() + " --> " + row.mMessage());
+            System.out.println("Row [" + row.mId() + "]: " + row.mSubject() + " --> " + row.mMessage() + " | Likes: " + row.mLikes());
         } else {
             System.out.println("Row not found.");
         }
@@ -137,7 +137,7 @@ public class App {
         if (rows != null) {
             System.out.println("All rows in the database:");
             for (Database.RowData row : rows) {
-                System.out.println("Row [" + row.mId() + "]: " + row.mSubject() + " --> " + row.mMessage());
+                System.out.println("Row [" + row.mId() + "]: " + row.mSubject() + " --> " + row.mMessage() + " | Likes: " + row.mLikes());
             }
         } else {
             System.out.println("No data found.");
@@ -145,7 +145,7 @@ public class App {
     }
 
     /**
-     * Insert a new row into the table.
+     * Insert a new row into the table. Likes are automatically initialized to 0.
      *
      * @param db The database object.
      * @param in BufferedReader for reading user input.
