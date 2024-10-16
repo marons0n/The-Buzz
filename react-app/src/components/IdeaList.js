@@ -4,6 +4,53 @@ import { FaThumbsUp, FaSpinner, FaExclamationTriangle } from 'react-icons/fa';
 import api from '../services/api';
 import './IdeaList.css';
 
+const IdeaCard = ({ idea, onLike }) => {
+  const [likes, setLikes] = useState(idea.mLikes);
+  const [isLiking, setIsLiking] = useState(false);
+
+  const handleLikeToggle = async () => {
+    setIsLiking(true);
+    try {
+      if (likes > idea.mLikes) {
+        await api.ideas.unlike(idea.mId);
+        setLikes(likes - 1);
+      } else {
+        await api.ideas.like(idea.mId);
+        setLikes(likes + 1);
+      }
+      onLike(idea.mId, likes);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      setLikes(idea.mLikes);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+  return (
+    <motion.div
+      className="idea-card"
+      layout
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      transition={{ duration: 0.3 }}
+    >
+      <p className="idea-message">{idea.mMessage}</p>
+      <div className="idea-footer">
+        <button
+          className={`like-button ${likes > idea.mLikes ? 'liked' : ''}`}
+          onClick={handleLikeToggle}
+          disabled={isLiking}
+        >
+          <FaThumbsUp /> {likes}
+          {isLiking && <FaSpinner className="spinner" />}
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
 const IdeaList = ({ refreshTrigger }) => {
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,15 +74,10 @@ const IdeaList = ({ refreshTrigger }) => {
     fetchIdeas();
   }, [refreshTrigger]);
 
-  const handleLike = async (id) => {
-    try {
-      await api.ideas.like(id);
-      setIdeas(ideas.map(idea => 
-        idea.mId === id ? { ...idea, mLikes: idea.mLikes + 1 } : idea
-      ));
-    } catch (err) {
-      console.error('Error liking idea:', err);
-    }
+  const handleLike = (id, newLikes) => {
+    setIdeas(ideas.map(idea =>
+      idea.mId === id ? { ...idea, mLikes: newLikes } : idea
+    ));
   };
 
   if (loading) {
@@ -70,25 +112,7 @@ const IdeaList = ({ refreshTrigger }) => {
       ) : (
         <motion.div className="idea-grid" layout>
           {ideas.map((idea) => (
-            <motion.div
-              key={idea.mId}
-              className="idea-card"
-              layout
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.3 }}
-            >
-              <p className="idea-message">{idea.mMessage}</p>
-              <div className="idea-footer">
-                <button
-                  className="like-button"
-                  onClick={() => handleLike(idea.mId)}
-                >
-                  <FaThumbsUp /> {idea.mLikes}
-                </button>
-              </div>
-            </motion.div>
+            <IdeaCard key={idea.mId} idea={idea} onLike={handleLike} />
           ))}
         </motion.div>
       )}

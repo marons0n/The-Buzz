@@ -29,13 +29,13 @@
 
 .hero p {
   font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #7f8c8d;
+  margin-bottom: 10rem;
+  color: #020202;
 }
 
 .hero-image {
   flex: 1;
-  max-width: 50%;
+  max-width: 25%;
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }

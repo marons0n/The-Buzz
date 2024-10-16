@@ -107,3 +107,16 @@
     font-size: 1.8rem;
   }
 }
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  margin-top: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.error-message svg {
+  margin-right: 10px;
+}

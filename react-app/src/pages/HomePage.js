@@ -18,10 +18,10 @@ const HomePage = () => {
           <Link to="/signup" className="cta-button">Get Started</Link>
         </motion.div>
         <motion.img 
-          src="/api/placeholder/600/400" 
+          src="/the uzz.png" 
           alt="The Buzz Platform" 
           className="hero-image"
-          initial={{ opacity: 0, x: 20 }}
+          initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         />

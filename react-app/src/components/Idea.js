@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
 import api from '../services/api';
-import './Idea.css'; 
+import './Idea.css';
 
 const Idea = ({ idea, onUpdate }) => {
   const [isLiking, setIsLiking] = useState(false);
+  const [likes, setLikes] = useState(idea.mLikes);
 
   const handleLikeToggle = async () => {
     setIsLiking(true);
     try {
-      if (idea.userHasLiked) {
-        await api.ideas.unlike(idea.id);
+      let updatedLikes;
+      if (likes > idea.mLikes) {
+        // User is unliking
+        await api.ideas.unlike(idea.mId);
+        updatedLikes = likes - 1;
       } else {
-        await api.ideas.like(idea.id);
+        // User is liking
+        await api.ideas.like(idea.mId);
+        updatedLikes = likes + 1;
       }
+      setLikes(updatedLikes);
       onUpdate();
     } catch (error) {
       console.error('Error toggling like:', error);
+      // Revert the like state if the API call fails
+      setLikes(idea.mLikes);
       // You might want to show an error message to the user here
     } finally {
       setIsLiking(false);
@@ -25,13 +34,13 @@ const Idea = ({ idea, onUpdate }) => {
   return (
     <div className="idea-card">
       <h3 className="idea-title">{idea.mMessage}</h3>
-      <p className="idea-likes">Likes: {idea.mLikes}</p>
-      <button 
-        className={`like-button ${idea.userHasLiked ? 'liked' : ''}`}
+      <p className="idea-likes">Likes: {likes}</p>
+      <button
+        className={`like-button ${likes > idea.mLikes ? 'liked' : ''}`}
         onClick={handleLikeToggle}
         disabled={isLiking}
       >
-        {isLiking ? 'Processing...' : (idea.userHasLiked ? 'Unlike' : 'Like')}
+        {isLiking ? 'Processing...' : (likes > idea.mLikes ? 'Unlike' : 'Like')}
       </button>
     </div>
   );

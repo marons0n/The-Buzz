@@ -19,7 +19,8 @@ const IdeaForm = ({ onIdeaCreated }) => {
     setError(null);
 
     try {
-      await api.ideas.create({ mMessage: message });
+      // Send the message directly, not wrapped in an object
+      await api.ideas.create(message);
       onIdeaCreated();
       setMessage('');
       setError(null);

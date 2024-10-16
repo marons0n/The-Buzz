@@ -1,3 +1,4 @@
+// IdeasPage.js
 import React, { useState, useCallback } from 'react';
 import IdeaList from '../components/IdeaList';
 import IdeaForm from '../components/IdeaForm';
@@ -17,6 +18,18 @@ const IdeasPage = () => {
     setIsFormVisible(!isFormVisible);
   };
 
+  const handleIdeaCreated = () => {
+    refreshIdeas();
+    setIsFormVisible(false);
+    setError(null);
+  };
+
+  const handleError = (errorMessage) => {
+    setError(errorMessage);
+    // Optionally, auto-hide the error after 5 seconds
+    // setTimeout(() => setError(null), 5000);
+  };
+
   return (
     <div className="ideas-page">
       <header className="ideas-header">
@@ -29,27 +42,23 @@ const IdeasPage = () => {
       
       {isFormVisible && (
         <div className="idea-form-container">
-          <IdeaForm 
-            onIdeaCreated={() => {
-              refreshIdeas();
-              setIsFormVisible(false);
-            }} 
-          />
+          <IdeaForm onIdeaCreated={handleIdeaCreated} />
         </div>
       )}
       
       <div className="ideas-container">
         <h2>Latest Ideas</h2>
-        <IdeaList 
-          refreshTrigger={refreshTrigger} 
-          onError={(errorMessage) => setError(errorMessage)}
+        <IdeaList
+          refreshTrigger={refreshTrigger}
+          onError={handleError}
         />
-        {error && (
-          <div className="error-message">
-            <FaExclamationTriangle /> {error}
-          </div>
-        )}
       </div>
+
+      {error && (
+        <div className="error-message">
+          <FaExclamationTriangle /> {error}
+        </div>
+      )}
     </div>
   );
 };
