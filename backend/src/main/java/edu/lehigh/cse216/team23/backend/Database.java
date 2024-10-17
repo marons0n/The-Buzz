@@ -118,9 +118,7 @@ public class Database {
      * The Database constructor is private: we only create Database objects
      * through one or more static getDatabase() methods.
      */
-    private Database() {
-
-    }
+    private Database() {}
 
     private PreparedStatement mCreateTable;
     private static final String SQL_CREATE_TABLE = "CREATE TABLE ideas_tbl (" +
@@ -129,7 +127,7 @@ public class Database {
             " message TEXT NOT NULL)";
 
     /**
-     * safely performs mCreateTable =
+     * safely performs mCreateTable
      * mConnection.prepareStatement(SQL_CREATE_TABLE);
      */
     private boolean init_mCreateTable() {
