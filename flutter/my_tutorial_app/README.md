@@ -18,3 +18,5 @@ samples, guidance on mobile development, and a full API reference.
 To run app on mobile device:
 - Click on the bottom bar in VSCode, select android device you want to emulate
 - Click run & debug. Hot reload to see changes
+
+Dart doc files in my_flutter_tutorial_app/doc/api 

@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'The Buzz',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -217,7 +217,7 @@ class _HttpReqWordsState extends State<HttpReqWords> {
                       children: <Widget>[
                         ListTile(
                           title: Text(
-                            "ID: ${idea.mId}, Message: ${idea.mMessage}",
+                            "Idea ${idea.mId}: ${idea.mMessage}",
                             style: _biggerFont,
                           ),
                           trailing: Row(
@@ -229,6 +229,21 @@ class _HttpReqWordsState extends State<HttpReqWords> {
                                 onPressed: () async {
                                   try {
                                     bool success = await likeIdea(idea.mId);
+                                    if (success) {
+                                      setState(() {
+                                        _future_list_ideas = fetchIdeas();
+                                      });
+                                    }
+                                  } catch (e) {
+                                    print("Error liking idea: $e");
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.thumb_down),
+                                onPressed: () async {
+                                  try {
+                                    bool success = await dislikeIdea(idea.mId);
                                     if (success) {
                                       setState(() {
                                         _future_list_ideas = fetchIdeas();
