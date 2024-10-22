@@ -41,7 +41,7 @@ Future<void> submitNewIdea(String idea) async {
   final response = await http.post(
     url,
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'mId': 90,'mLikes':0, 'Message': idea}),
+    body: jsonEncode({'mId': 90,'mLikes':0, 'mMessage': idea}),
   );
 
   if (response.statusCode != 200) {

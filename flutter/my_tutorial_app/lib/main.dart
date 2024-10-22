@@ -6,26 +6,26 @@ import './net/webRequests.dart';
 import 'package:http/http.dart' as http;
 
 // example modified from https://pub.dev/packages/http
-import 'package:http/http.dart' as http;
 
-Future<void> doRequests() async {
-  var url = Uri.https('example.com', 'whatsit/create');             // using https; http also possible
-  var response = await http.post(                                   // POST returning Future<Response>
-                  url, 
-                  body: {'name': 'doodle', 'color': 'blue'},
-                  headers: {});
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
 
-  var url2 = Uri.http('www.cse.lehigh.edu', '~spear/courses.json');  // using http
-  var response2 = await http.get(
-                  url2, 
-                  headers: {});                                      // GET returning Future<Response>
-  print('Response2 status: ${response2.statusCode}');
-  print('Response2 body: ${response2.body}');
+// Future<void> doRequests() async {
+//   // var url = Uri.https('example.com', 'whatsit/create');            
+//   // var response = await http.post(                               
+//   //                 url, 
+//   //                 body: {'name': 'doodle', 'color': 'blue'},
+//   //                 headers: {});
+//   // print('Response status: ${response.statusCode}');
+//   // print('Response body: ${response.body}');
 
-  print(await http.read(Uri.https('example.com', 'foobar.txt')));    // GET returning Future<String>
-}
+//   // var url2 = Uri.http('www.cse.lehigh.edu', '~spear/courses.json'); 
+//   // var response2 = await http.get(
+//   //                 url2, 
+//   //                 headers: {});                                      // GET returning Future<Response>
+//   // print('Response2 status: ${response2.statusCode}');
+//   // print('Response2 body: ${response2.body}');
+
+//   print(await http.read(Uri.https('example.com', 'foobar.txt')));    // GET returning Future<String>
+// }
 
 void main() {
   runApp(const MyApp());
@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'The Buzz'),
     );
   }
 }
@@ -125,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class HttpReqWords extends StatefulWidget {
   const HttpReqWords({super.key});
+  
 
   @override
   State<HttpReqWords> createState() => _HttpReqWordsState();
@@ -137,7 +138,8 @@ class _HttpReqWordsState extends State<HttpReqWords> {
   var _words = <String>['a', 'b', 'c', 'd'];
   final _biggerFont = const TextStyle(fontSize: 18);
   late Future<List<IdeaItem>> _future_list_ideas;
-  String _newIdea = ''; // Variable to hold the input text
+  // String _newIdea = ''; // Variable to hold the input text
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
@@ -152,17 +154,16 @@ class _HttpReqWordsState extends State<HttpReqWords> {
   }
 
   Future<void> _submitIdea() async {
-    final newIdea = _newIdea.trim();
+    final newIdea = _controller.text.trim();
     if (newIdea.isNotEmpty) {
       try {
         await submitNewIdea(newIdea);
         setState(() {
-          _newIdea = ''; // Clear the input after submission
+          _controller.clear(); // Clear the input after submission
         });
         _retry(); // Refresh the list of ideas
       } catch (e) {
         print("Error submitting idea: $e");
-        // Optionally, show an error message to the user
       }
     }
   }
@@ -177,10 +178,11 @@ class _HttpReqWordsState extends State<HttpReqWords> {
             children: [
               Expanded(
                 child: TextField(
+                  controller: _controller,
                   onChanged: (value) {
-                    setState(() {
-                      _newIdea = value; // Update the input state
-                    });
+                    // setState(() {
+                    //   _newIdea = value; // Update the input state
+                    // });
                   },
                   decoration: InputDecoration(
                     labelText: 'Enter a new idea',
