@@ -13,3 +13,4 @@
 - Bitbucket Repository: <https://bitbucket.org/sml3/cse216_fa24_team_23>
 - Jira Board: <https://cse216-fa24-team-23.atlassian.net>
 - Dokku: <https://team-untitled-23.dokku.cse.lehigh.edu>
+- [Backend JavaDoc](backend/javadoc/index.html) 
