@@ -44,6 +44,28 @@
                 </archive>
             </configuration>
         </plugin>
+<<<<<<< HEAD
+=======
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.5.0</version>
+          <configuration>
+            <reportOutputDirectory>${project.reporting.outputDirectory}/javadoc</reportOutputDirectory>
+            <destDir>javadoc</destDir>
+          </configuration>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        
+>>>>>>> 4685aa443f73d52463c4b999e648af4ac481a18a
     </plugins>
   </build>
   <dependencies>

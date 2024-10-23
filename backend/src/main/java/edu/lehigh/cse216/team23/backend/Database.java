@@ -9,7 +9,20 @@ import java.sql.ResultSet;
 import java.util.Map;
 import java.util.ArrayList;
 
+/**
+ * Manages database operations for the ideas_tbl in a PostgreSQL database.
+ * Provides methods for creating, reading, updating, and deleting rows.
+ * Connections are established using environment variables.
+ * 
+ * Use static getDatabase() methods to obtain instances of this class.
+ */
 public class Database {
+    /**
+     *  Represents a row in the ideas_tbl with id, likes count, and message content.
+     * @param mId the id of the idea
+     * @param mLikes the number of likes on the idea (cannot be less than 0)
+     * @param mMessage the content of the idea
+     * */
     public static record RowData(int mId, int mLikes, String mMessage) {
     }
 
@@ -298,7 +311,7 @@ public class Database {
             System.out.println("Database operation: updateOne(int id, String likes, String message)");
             if (likes == 1) {
                 mUpdateOne_2arg.setInt(1, (selectOne(id).mLikes + 1)); // adds 1 like
-            } else if (likes == -1) {
+            } else if (likes == -1 && selectOne(id).mLikes > 0) {
                 mUpdateOne_2arg.setInt(1, (selectOne(id).mLikes - 1)); // removes 1 like
             } // if anything else than 1 or -1 is passed nothing is going to happen
 

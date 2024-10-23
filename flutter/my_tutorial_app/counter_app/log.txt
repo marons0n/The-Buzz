@@ -1,0 +1,71 @@
+commit 22e0f09f6adb34d1a1c5912c35f6c16506c77851
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 17:48:02 2024 -0400
+
+    try #2 at unit testing, resolved all of the linux/windows/macos files last time mistakenly
+
+commit 1c5b7db8de65c0087f6754ce965ef5fc22018eda
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 17:38:43 2024 -0400
+
+    counter_app unit tests
+
+commit 671019374e9ca18ab41ee6e08c45d87168d1a6d4
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 16:22:17 2024 -0400
+
+    web requests in new file, wordpair in new file
+
+commit 8ea4882cfb5360288257c5df628eb714eccf38b4
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 16:13:47 2024 -0400
+
+    using library to parse web fetched JSON data
+
+commit b8957b36fa46ae9701313a1c579edb7ae62eec49
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 15:55:54 2024 -0400
+
+    can display more json from the internet, and included an if/else block for status codes other than 200
+
+commit 1fe1ac7bf47f025af0e2efb6a9b38f67c7763197
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 15:50:36 2024 -0400
+
+    display json list data from internet (CSE classes list)
+
+commit 03b9cee654968f4ffa55a9e90b8a324db563f591
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 15:25:41 2024 -0400
+
+    a b c d display working
+
+commit ad15cec3caf7de24eafadd39b17f5b36e0eb3052
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 15:07:47 2024 -0400
+
+    modified default flutter app to display stateful widget with random word pair (works)
+
+commit 28585ed28089b4c1e23453fff7ffb4b94ba0996f
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 24 12:49:43 2024 -0400
+
+    made new flutter project, changed sdkpath in settings.json
+
+commit a990f1b3936f82b63f84701909d8b6b18237411f
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 3 17:47:51 2024 -0400
+
+    Added new readme.md to mobile
+
+commit a9961d09bebb6bd830c1a17317c247602d994fed
+Author: Stefania Dzhaman <dzhaman3@illinois.edu>
+Date:   Tue Sep 3 17:14:56 2024 -0400
+
+    added my own info to project details in the README.md
+
+commit 624b4dfb223aa2a1535de750d5194f6ba6396f13
+Author: Stephen Lee-Urban <sml3@lehigh.edu>
+Date:   Sun Aug 25 20:18:25 2024 -0400
+
+    Initialized repository with a rudimentary README
