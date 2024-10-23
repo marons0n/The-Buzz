@@ -1,0 +1,279 @@
+/* Header Container */
+.buzz-header {
+  background-color: rgba(255, 255, 255, 0.98);
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.3s ease;
+}
+
+.buzz-header.scrolled {
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Header Content Container */
+.buzz-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem);
+}
+
+/* Logo Styles */
+.buzz-logo {
+  text-decoration: none;
+  color: #1a1a1a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  padding: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.buzz-logo:hover {
+  transform: translateY(-1px);
+}
+
+.buzz-logo::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: left;
+}
+
+.buzz-logo:hover::after {
+  transform: scaleX(1);
+}
+
+/* Desktop Menu */
+.buzz-desktop-menu {
+  display: flex;
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: center;
+  margin: 0 2rem;
+}
+
+.buzz-menu-item {
+  text-decoration: none;
+  color: #4b5563;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.buzz-menu-item::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.buzz-menu-item:hover {
+  color: #6e8efb;
+}
+
+.buzz-menu-item:hover::before {
+  transform: scaleX(1);
+}
+
+.buzz-menu-item.active {
+  color: #6e8efb;
+  font-weight: 600;
+}
+
+.buzz-menu-item.active::before {
+  transform: scaleX(1);
+}
+
+/* Header Actions */
+.buzz-header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Button Styles */
+.buzz-sign-in-button,
+.buzz-try-free-button {
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.buzz-sign-in-button {
+  color: #4b5563;
+  background: transparent;
+  border: 2px solid #e5e7eb;
+}
+
+.buzz-sign-in-button:hover {
+  background: #f3f4f6;
+  border-color: #6e8efb;
+  transform: translateY(-1px);
+}
+
+.buzz-try-free-button {
+  background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(110, 142, 251, 0.2);
+}
+
+.buzz-try-free-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.buzz-try-free-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(110, 142, 251, 0.3);
+}
+
+.buzz-try-free-button:hover::before {
+  left: 100%;
+}
+
+/* Mobile Menu Button */
+.buzz-mobile-menu-button {
+  display: none;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .buzz-header {
+    background-color: rgba(31, 41, 55, 0.98);
+    border-bottom-color: rgba(75, 85, 99, 0.5);
+  }
+
+  .buzz-logo {
+    color: #e5e7eb;
+  }
+
+  .buzz-menu-item {
+    color: #d1d5db;
+  }
+
+  .buzz-menu-item:hover {
+    color: #6e8efb;
+  }
+
+  .buzz-sign-in-button {
+    color: #e5e7eb;
+    border-color: #4b5563;
+  }
+
+  .buzz-sign-in-button:hover {
+    background: rgba(75, 85, 99, 0.5);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .buzz-desktop-menu {
+    display: none;
+  }
+
+  .buzz-mobile-menu-button {
+    display: block;
+  }
+
+  .buzz-header-actions {
+    gap: 0.5rem;
+  }
+
+  .buzz-sign-in-button,
+  .buzz-try-free-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .buzz-header,
+  .buzz-logo,
+  .buzz-menu-item,
+  .buzz-try-free-button {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Focus States */
+.buzz-menu-item:focus-visible,
+.buzz-sign-in-button:focus-visible,
+.buzz-try-free-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #6e8efb;
+}
+
+/* Loading State */
+.buzz-try-free-button.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.buzz-try-free-button.loading::after {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
