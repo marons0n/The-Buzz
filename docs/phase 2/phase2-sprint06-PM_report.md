@@ -18,7 +18,7 @@ In addition to uploading to coursesite, version control this in the `master` bra
 * Name: Function Junction  
 * Mentor: \<Maya Itty, [mni226@lehigh.edu](mailto:mni226@lehigh.edu)\>  
 * Weekly live & synchronous meeting:  
-  * without mentor: 10/10 5pm-6pm, 10/15 
+  * without mentor: 10/27 9pm-10:30pm, 10/31 
 
 ### Team Roles:
 

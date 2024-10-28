@@ -93,33 +93,18 @@
 
     Test #2: Comments: POST/PUT/GET/DELETE  comments reflected in Supabase.
 
-
-
-
-## System Architecture
-
-<!-- Add your system architecture details here -->
-
 ## UI/UX Design
-
-<!-- Add your UI/UX design details here -->
-
-## State Machines
-
-<!-- Add your state machines details here -->
+![Alt text](MobileFrontend.png)
+![Alt text](WebFrontend.png)
+# **DataBase**
+![Alt text](DataBase.png)
+# **System Design**
+![Alt text](SystemDesign.png)
+# **State Machine**
+![Alt text](StateMachine.png)
+## IdeaState
+![Alt text](ideaState.png)
 
 ## API Routes
 
 <!-- Add your API routes details here -->
-
-## Database Design
-
-<!-- Add your database design details here -->
-
-## Testing Strategy
-
-<!-- Add your testing strategy details here -->
-
-## Technical Backlog
-
-<!-- Add your technical backlog details here -->
