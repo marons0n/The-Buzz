@@ -67,7 +67,34 @@
 
 ## User Story Tests
 
-<!-- Add your user story tests here -->
+    Unit tests: mobile
+    Test #1: Posting comments: ensure that comments appear on the mobile page by posting a test post and waiting for the comment to appear, which should happen almost immediately.
+    Test #2: Verify that users can up vote and down vote by committing this action and waiting for a response in the form of the number of likes changing on the mobile page.
+    Test #3: Test profile editing by changing the user’s bio (note) after account creation.
+
+    Admin-cli tests
+    Test #1: Inputting a blank post title or post body causes a message prompting the user to input text to appear, and the message does not post
+
+    Test #2: Inputting a blank comment causes message to appear and comment to not post
+
+    Test #3: Attempting to post comment of over 200 chars results in message to the user and comment doesn’t post
+
+    Test #4: Inputting bio of over 200 chars or name of user of over 40 chars causes error message and prompts user to retry
+
+    Unit Tests: Frontend
+    Test#1 OAuth Test: Open the login page of the web use a verified userID, have it click through the credential process, confirms it and sends the user to see the comments page
+
+    Test#2: Adding and Editing Comment of the Idea field, tests by creating a comment more than 512 characters, rejects its, add valid input of less than 512 characters. Once confirmed, it will edit it and save it. 
+
+    Test#3: Changing user bio manually. Log in with credentials, open the bio page of the test User and then edit  the bio through the web.
+
+    Unit Tests: Backend
+    Test #1: Upvotes/downvotes:  POST/PUT/GET/DELETE upvotes/downvotes reflected in Supabase. Clicking upvote when already upvotes makes it neutral, downvoting when upvoted/upvoting when downvoted replaces previous vote.
+
+    Test #2: Comments: POST/PUT/GET/DELETE  comments reflected in Supabase.
+
+
+
 
 ## System Architecture
 
