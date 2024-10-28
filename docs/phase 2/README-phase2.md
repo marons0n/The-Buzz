@@ -106,5 +106,17 @@
 ![Alt text](ideaState.png)
 
 ## API Routes
+    ROUTES:
 
-<!-- Add your API routes details here -->
+GET /users/ Gets a list of all users on the platform
+GET /{Idea_ID}/votes: Gets the number of votes on an idea
+GET/{Idea_ID}/votes: Gets a list of all of the users who upvoted an idea
+GET/{Idea_ID}/downvotes: Gets list of all of the users who downvoted an idea
+GET/{idea_Id}/comments: Gets a list of comments on an idea
+
+POST /auth/register - Register a new user.
+POST /auth/login - Authenticate and log in a user.
+POST /auth/logout - Log out the current user.
+GET /auth/profile - Get the profile details of the logged-in user.
+
+    
