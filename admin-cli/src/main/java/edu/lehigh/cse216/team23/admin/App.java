@@ -152,7 +152,14 @@ public class App {
      */
     static void insertRow(Database db, BufferedReader in) {
         String subject = getString(in, "Enter the subject");
-        String message = getString(in, "Enter the message");
+        String message = getString(in, "Enter the message [limit 512 characters]");
+        
+        // Check if message exceeds 512 characters
+        if (message.length() > 512) {
+            System.out.println("Error: Message exceeds 512 characters. Please try again.");
+            return; // Exit without inserting the row
+        }
+
         if (!subject.isEmpty() && !message.isEmpty()) {
             int result = db.insertRow(subject, message);
             System.out.println(result + " row(s) inserted.");
@@ -170,7 +177,14 @@ public class App {
     static void updateRow(Database db, BufferedReader in) {
         int id = getInt(in, "Enter the row ID");
         if (id == -1) return;
-        String newMessage = getString(in, "Enter the new message");
+        String newMessage = getString(in, "Enter the new message [limit 512 characters]");
+        
+        // Check if new message exceeds 512 characters
+        if (newMessage.length() > 512) {
+            System.out.println("Error: Message exceeds 512 characters. Please try again.");
+            return;
+        }
+
         if (!newMessage.isEmpty()) {
             int result = db.updateOne(id, newMessage);
             System.out.println(result + " row(s) updated.");

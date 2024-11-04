@@ -72,4 +72,19 @@ public class AppTest {
         char result = App.prompt(reader);
         assertEquals('T', result);
     }
+
+    /**
+     * Test for message length restriction (shouldn't allow more than 512 characters).
+     */
+    @Test
+    public void testMessageLengthLimit() throws IOException {
+        // Create a string with 513 characters (exceeding the limit)
+        String input = "A".repeat(513) + "\n";
+        InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(input.getBytes()));
+        BufferedReader reader = new BufferedReader(isr);
+
+        // Ensure that the string length doesn't exceed 512
+        String result = App.getString(reader, "Enter the message [limit 512 characters]");
+        assertTrue(result.length() <= 512);
+    }
 }
