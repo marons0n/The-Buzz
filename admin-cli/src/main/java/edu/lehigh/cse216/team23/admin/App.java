@@ -55,6 +55,11 @@ public class App {
         while (true) {
             // Prompt for user action
             char action = prompt(in);
+            System.out.println("  [I] Idea table");
+            System.out.println("  [U] User table");
+            System.out.println("  [C] Comment table");
+            System.out.println("  [V] Vote table");
+            System.out.println("  [M] Return to the main menu");
             switch (action) {
                 case '?':
                     menu();
@@ -63,39 +68,25 @@ public class App {
                     db.disconnect();
                     return;
                 case 'T':
-                    System.out.println("  [I] Create idea table");
-                    System.out.println("  [U] Create user table");
-                    System.out.println("  [C] Create comment table");
-                    System.out.println("  [V] Create vote table");
                     createTableLoop();
                     break;
                 case 'D':
-                    System.out.println("  [I] Drop idea table");
-                    System.out.println("  [U] Drop user table");
-                    System.out.println("  [C] Drop comment table");
-                    System.out.println("  [V] Drop vote table");
                     dropTableLoop();
                     break;
                 case '1':
-                    System.out.println("  [I] Query idea row");
-                    System.out.println("  [U] Query user row");
-                    System.out.println("  [C] Query comment row");
-                    System.out.println("  [V] Query vote row");
-                   
-                    break;
-                    queryRowById(db, in);
+                    QueryRowLoop();
                     break;
                 case '*':
-                    queryAllRows(db);
+                    QueryAllRowsLoop();
                     break;
                 case '+':
-                    insertRow(db, in);
+                    InsertRowLoop();
                     break;
                 case '~':
-                    updateRow(db, in);
+                    UpdateRowLoop();
                     break;
                 case '-':
-                    deleteRow(db, in);
+                    DeleteRowLoop();
                     break;
                 default:
                     System.out.println("Unknown command: " + action);
@@ -126,6 +117,8 @@ public class App {
                 // case 'V':
                 //     createVoteTable();
                 //     break;
+                case 'M':
+                    return;
             }
         }
     }
@@ -149,18 +142,149 @@ public class App {
                     db.dropUserTable();
                     return;
                 // case 'C':
-                //     createCommentTable();
+                //     dropCommentTable();
                 //     break;
                 // case 'V':
-                //     createVoteTable();
+                //     dropVoteTable();
                 //     break;
             }
         }
     }
 
 
-    public static void  QueryRowLoop(){
-        queryRowById(db, in);
+    public static void QueryRowLoop(){
+        Database db = Database.getDatabase();
+        if (db == null) {
+            System.err.println("Unable to connect to the database, exiting.");
+            System.exit(1);
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            // Prompt for user action
+            char action = promptTable(in);
+            switch (action) {
+                case 'I':
+                    queryRowById(db, in);
+                    break;
+                case 'U':
+                    queryUserRowById(db, in);
+                    return;
+                // case 'C':
+                //     queryCommentRowById();
+                //     break;
+                // case 'V':
+                //     queryVoteRowById();
+                //     break;
+            }
+        }  
+    }
+
+    public static void QueryAllRowsLoop(){
+        Database db = Database.getDatabase();
+        if (db == null) {
+            System.err.println("Unable to connect to the database, exiting.");
+            System.exit(1);
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            // Prompt for user action
+            char action = promptTable(in);
+            switch (action) {
+                case 'I':
+                    queryAllRows(db);
+                    break;
+                case 'U':
+                    queryAllUserRows(db);
+                    return;
+                // case 'C':
+                //     queryAllComments();
+                //     break;
+                // case 'V':
+                //     queryAllVotes();
+                //     break;
+            }
+        }  
+    }
+
+    public static void InsertRowLoop(){
+        Database db = Database.getDatabase();
+        if (db == null) {
+            System.err.println("Unable to connect to the database, exiting.");
+            System.exit(1);
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            // Prompt for user action
+            char action = promptTable(in);
+            switch (action) {
+                case 'I':
+                    insertRow(db, in);
+                    break;
+                case 'U':
+                    insertUserRow(db, in);
+                    return;
+                // case 'C':
+                //     insertCommentRow();
+                //     break;
+                // case 'V':
+                //     insertVoteRow();
+                //     break;
+            }
+        }  
+    }
+
+    public static void UpdateRowLoop(){
+        Database db = Database.getDatabase();
+        if (db == null) {
+            System.err.println("Unable to connect to the database, exiting.");
+            System.exit(1);
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            // Prompt for user action
+            char action = promptTable(in);
+            switch (action) {
+                case 'I':
+                    updateRow(db, in);
+                    break;
+                case 'U':
+                    updateUserRow(db, in);
+                    return;
+                // case 'C':
+                //     updateCommentRow();
+                //     break;
+                // case 'V':
+                //     updateVoteRow();
+                //     break;
+            }
+        }  
+    }
+
+    public static void DeleteRowLoop(){
+        Database db = Database.getDatabase();
+        if (db == null) {
+            System.err.println("Unable to connect to the database, exiting.");
+            System.exit(1);
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            // Prompt for user action
+            char action = promptTable(in);
+            switch (action) {
+                case 'I':
+                    deleteRow(db, in);
+                    break;
+                case 'U':
+                    deleteUserRow(db, in);
+                    return;
+                // case 'C':
+                //     deleteCommentRow();
+                //     break;
+                // case 'V':
+                //     deleteVoteRow();
+                //     break;
+            }
+        }  
     }
 
 
