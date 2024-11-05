@@ -44,54 +44,16 @@
                 </archive>
             </configuration>
         </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.5.0</version>
-          <configuration>
-            <reportOutputDirectory>${project.reporting.outputDirectory}/javadoc</reportOutputDirectory>
-            <destDir>javadoc</destDir>
-          </configuration>
-          <executions>
-            <execution>
-              <id>attach-javadocs</id>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
         
     </plugins>
   </build>
   <dependencies>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-
-    
-      <!-- JUnit Jupiter API for writing tests -->
-      <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter-api</artifactId>
-          <version>5.8.2</version>
-          <scope>test</scope>
-      </dependency>
-      
-      <!-- JUnit Jupiter Engine for running tests -->
-      <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter-engine</artifactId>
-          <version>5.8.2</version>
-          <scope>test</scope>
-      </dependency>
-
-
     <dependency>
       <groupId>io.javalin</groupId>
       <artifactId>javalin</artifactId>
@@ -112,5 +74,106 @@
       <artifactId>postgresql</artifactId>
       <version>42.7.3</version>
     </dependency>
+    
+    <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>java-jwt</artifactId>
+      <version>3.18.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>auth0</artifactId>
+      <version>1.25.0</version>
+   </dependency>
+   <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>jwks-rsa</artifactId>
+      <version>0.11.0</version>
+    </dependency>
+    <!-- Other dependencies -->
+
+    <!-- Google API Client Library -->
+    <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>1.32.1</version>
+  </dependency>
+
+  <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client-jetty</artifactId>
+      <version>1.32.1</version>
+  </dependency>
+
+  <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-jackson2</artifactId>
+      <version>1.39.2</version>
+  </dependency>
+
+<!-- Add your existing dependencies here -->
+
+<dependency>
+
+  <groupId>com.google.api-client</groupId>
+
+  <artifactId>google-api-client</artifactId>
+
+  <version>1.32.1</version>
+
+</dependency>
+
+<dependency>
+
+  <groupId>com.google.oauth-client</groupId>
+
+  <artifactId>google-oauth-client-jetty</artifactId>
+
+  <version>1.32.1</version>
+
+</dependency>
+<!-- Other dependencies -->
+
+    <!-- Jackson Databind -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.12.3</version>
+  </dependency>
+
+  <!-- Jackson Core -->
+  <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.12.3</version>
+  </dependency>
+
+  <!-- Jackson Annotations -->
+  <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.12.3</version>
+  </dependency>
+
+  <!-- Google API Client Library -->
+  <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>1.32.1</version>
+  </dependency>
+
+  <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client-jetty</artifactId>
+      <version>1.32.1</version>
+  </dependency>
+
+  <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-gson</artifactId>
+      <version>1.39.2</version>
+  </dependency>
+
+
   </dependencies>
 </project>
