@@ -7,3 +7,4 @@ package edu.lehigh.cse216.team23.backend;
  * @param mMessage The message being provided by the client.
  */
 public record SimpleRequest( int mVotes, String mMessage ) {}
+

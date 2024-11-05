@@ -1,4 +1,3 @@
-
 package edu.lehigh.cse216.team23.backend;
 
 
@@ -11,6 +10,7 @@ import java.sql.ResultSet;
 
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -27,7 +27,10 @@ public class Database {
     * @param mVotes the number of votes on the idea (cannot be less than 0)
     * @param mMessage the content of the idea
     * */
-   public static record RowData(int mId, int mVotes, String mMessage) {
+   public static record RowDataIdeas(int mId, int mVotes, String mMessage) {
+   }
+
+   public static record RowDataComments(int mCommentId, int mUserId, int mPostId, String mText) {
    }
 
 
@@ -226,7 +229,7 @@ public class Database {
        }
    }
 
-
+//insert row to ideas table
    private PreparedStatement mInsertOne;
    /** the SQL for mInsertOne */
    private static final String SQL_INSERT_ONE_IDEAS_TBL = "INSERT INTO ideas_tbl (votes, message) VALUES (?, ?)";
@@ -252,7 +255,7 @@ public class Database {
 
 
   /**
-    * Insert a row into the database
+    * Insert a row into ideas table in the database
     *
     * @param votes   The lieks for this new row
     * @param message The message body for this new row
@@ -272,6 +275,56 @@ public class Database {
        }
        return count;
    }
+
+
+//insert comment
+   private PreparedStatement mInsertComment;
+   /** the SQL for mInsertOne */
+   private static final String SQL_INSERT_ONE_COMMENT = "INSERT INTO comment (userid, postid, text) VALUES (?, ?, ?) RETURNING commentid";
+
+    /**
+    * safely performs mInsertOne = mConnection.prepareStatement("INSERT INTO
+    * comment VALUES (default, ?, ?)");
+    */
+    private boolean init_mInsertComment() {
+        // return true on success, false otherwise
+        try {
+            mInsertOne = mConnection.prepareStatement(SQL_INSERT_ONE_COMMENT);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mInsertOne");
+            System.err.println("Using SQL: " + SQL_INSERT_ONE_COMMENT);
+            e.printStackTrace();
+            this.disconnect(); // @TODO is disconnecting on exception what we want?
+            return false;
+        }
+        return true;
+    }
+
+   /**
+    * Insert row into comment table in the database
+    *
+    * @param userId The user id of the comment
+    * @param postId The post id of the comment
+    * @param text The text of the comment
+    * @return The number of rows that were inserted
+    */
+    int insertComment(int userId, int postId, String text) {
+        if (mInsertComment == null) // not yet initialized, do lazy init
+            init_mInsertComment(); // lazy init
+        int count = 0;
+        try {
+            System.out.println("Database operation: insertComment(String, int)");
+            mInsertComment.setInt(1, userId);
+            mInsertComment.setInt(2, postId);
+            mInsertComment.setString(3, text);
+            count += mInsertComment.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+
 
 
    private PreparedStatement mUpdateOne;
@@ -361,7 +414,7 @@ public class Database {
 
 
    public int upvoteRow(int id) {
-       RowData data = selectOne(id);
+       RowDataIdeas data = selectOne(id);
        System.out.println("id: " + id);
        System.out.println("data: " + data);
        if (data == null) {
@@ -374,7 +427,7 @@ public class Database {
 
 
    public int downvoteRow(int id) {
-       RowData data = selectOne(id);
+       RowDataIdeas data = selectOne(id);
        if (data == null) {
            return -1;
        }
@@ -428,6 +481,7 @@ public class Database {
    }
 
 
+//get all ideas
    private PreparedStatement mSelectAll;
    private static final String SQL_SELECT_ALL_IDEAS_TBL = "SELECT id, votes, message" +
            " FROM ideas_tbl;";
@@ -447,10 +501,10 @@ public class Database {
    }
 
 
-   ArrayList<RowData> selectAll() {
+   ArrayList<RowDataIdeas> selectAll() {
        if (mSelectAll == null)
            init_mSelectAll();
-       ArrayList<RowData> res = new ArrayList<RowData>();
+       ArrayList<RowDataIdeas> res = new ArrayList<RowDataIdeas>();
        try {
            System.out.println("Database operation: selectAll()");
            ResultSet rs = mSelectAll.executeQuery();
@@ -458,7 +512,7 @@ public class Database {
                int id = rs.getInt("id");
                int votes = rs.getInt("votes");
                String message = rs.getString("message");
-               RowData data = new RowData(id, votes, message);
+               RowDataIdeas data = new RowDataIdeas(id, votes, message);
                res.add(data);
            }
            rs.close();
@@ -469,7 +523,53 @@ public class Database {
        }
    }
 
+//get comments from id
+    private PreparedStatement mSelectAllComments;
+    private static final String SQL_SELECT_ALL_COMMENTS = "SELECT commentid, userid, postid, text" +
+           " FROM comment WHERE postid = ?;";
 
+    private boolean init_mSelectAllComments() {
+        try {
+            mSelectAllComments = mConnection.prepareStatement(SQL_SELECT_ALL_COMMENTS);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mSelectAllComments");
+            System.err.println("Using SQL: " + SQL_SELECT_ALL_COMMENTS);
+            e.printStackTrace();
+            this.disconnect(); // @TODO is disconnecting on exception what we want?
+            return false;
+        }
+        return true;
+    }
+
+    ArrayList<RowDataComments> selectAllComments(int id) {
+        if (mSelectAllComments == null)
+            init_mSelectAllComments();
+        ArrayList<RowDataComments> res = new ArrayList<RowDataComments>();
+        try {
+            System.out.println("Database operation: selectAllComments()");
+            mSelectAllComments.setInt(1, id);
+            ResultSet rs = mSelectAllComments.executeQuery();
+            while (rs.next()) {
+                int commentid = rs.getInt("commentid");
+                int userid = rs.getInt("userid");
+                int postid = rs.getInt("postid");
+                String text = rs.getString("text");
+                RowDataComments data = new RowDataComments(commentid, userid, postid, text);
+                res.add(data);
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        
+    }
+
+
+
+
+//get one idea
    private PreparedStatement mSelectOne;
    /** the SQL for mSelectOne */
    private static final String SQL_SELECT_ONE_IDEAS_TBL = "SELECT *" +
@@ -502,10 +602,10 @@ public class Database {
     * @param id The id of the row being requested
     * @return The data for the requested row, or null if the ID was invalid
     */
-   RowData selectOne(int row_id) {
+   RowDataIdeas selectOne(int row_id) {
        if (mSelectOne == null) // not yet initialized, do lazy init
            init_mSelectOne(); // lazy init
-       RowData data = null;
+       RowDataIdeas data = null;
        try {
            System.out.println("Database operation: selectOne(int)");
            mSelectOne.setInt(1, row_id);
@@ -514,7 +614,7 @@ public class Database {
                int id = rs.getInt("id");
                int votes = rs.getInt("votes");
                String message = rs.getString("message");
-               data = new RowData(id, votes, message);
+               data = new RowDataIdeas(id, votes, message);
            }
            rs.close(); // remember to close the result set
        } catch (SQLException e) {
@@ -551,5 +651,6 @@ public class Database {
        System.err.println("Unable to close connection: Connection was null");
        return false;
    }
+
 }
 
