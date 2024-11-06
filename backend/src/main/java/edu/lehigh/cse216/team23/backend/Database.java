@@ -641,16 +641,127 @@ public class Database {
                return false;
            }
 
-
-           System.out.println(" ... connection succcessfully closed");
+           System.out.println(" ... connection successfully closed");
            mConnection = null; // connection is gone, so null this out
            return true;
        }
-
 
        System.err.println("Unable to close connection: Connection was null");
        return false;
    }
 
+   public int insertUser(String userId, String email, String name) {
+        //check if user id already exists in database
+        try {
+            PreparedStatement stmt = mConnection.prepareStatement("SELECT * FROM \"user\" WHERE userid = ?");
+            stmt.setString(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return 0; // Return 0 if the user already exists
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        String query = "INSERT INTO \"user\" (userid, email, name) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
+            stmt.setString(1, userId);
+            stmt.setString(2, email);
+            stmt.setString(3, name);
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows > 0) {
+                return 1; // Return 1 if the insertion is successful
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Return -1 if the insertion fails
+        }
+
+    public int insertRow(String userId, int votes, String message) {
+        String query = "INSERT INTO ideas_tbl (userid, votes, message) VALUES (?, ?, ?) RETURNING id";
+        try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
+            stmt.setString(1, userId);
+            stmt.setInt(2, votes);
+            stmt.setString(3, message);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1); // Return the new row ID
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Return -1 if the insertion fails
+    }
+
+    public int insertVote(String userId, int postId, String type) {
+        String insertVoteQuery = "INSERT INTO vote (userId, postId, votetype) VALUES (?, ?, ?) RETURNING voteid";
+        String updateVotesQuery = "UPDATE ideas_tbl SET votes = votes + ? WHERE id = ?";
+        int voteChange = type.equals("upvote") ? 1 : -1;
+
+        try {
+            mConnection.setAutoCommit(false); // Start transaction
+
+            try (PreparedStatement insertVoteStmt = mConnection.prepareStatement(insertVoteQuery);
+                 PreparedStatement updateVotesStmt = mConnection.prepareStatement(updateVotesQuery)) {
+
+                // Insert the vote
+                insertVoteStmt.setString(1, userId);
+                insertVoteStmt.setInt(2, postId);
+                insertVoteStmt.setString(3, type);
+                ResultSet rs = insertVoteStmt.executeQuery();
+                if (rs.next()) {
+                    int voteId = rs.getInt(1);
+
+                    // Update the votes count in the ideas table
+                    updateVotesStmt.setInt(1, voteChange);
+                    updateVotesStmt.setInt(2, postId);
+                    updateVotesStmt.executeUpdate();
+
+                    mConnection.commit(); // Commit transaction
+                    return voteId; // Return the new vote ID
+                }
+            } catch (SQLException e) {
+                mConnection.rollback(); // Rollback transaction on error
+                e.printStackTrace();
+            } finally {
+                mConnection.setAutoCommit(true); // Restore auto-commit mode
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Return -1 if the insertion fails
+    }
+
+    public int insertComment(String userId, int postId, String text) {
+        String insertCommentQuery = "INSERT INTO comment (userId, postId, text) VALUES (?, ?, ?) RETURNING commentid";
+
+        try {
+            mConnection.setAutoCommit(false); // Start transaction
+
+            try (PreparedStatement insertCommentStmt = mConnection.prepareStatement(insertCommentQuery)) {
+
+                // Insert the comment
+                insertCommentStmt.setString(1, userId);
+                insertCommentStmt.setInt(2, postId);
+                insertCommentStmt.setString(3, text);
+                ResultSet rs = insertCommentStmt.executeQuery();
+                if (rs.next()) {
+                    int commentId = rs.getInt(1);
+
+                    mConnection.commit(); // Commit transaction
+                    return commentId; // Return the new comment ID
+                }
+            } catch (SQLException e) {
+                mConnection.rollback(); // Rollback transaction on error
+                e.printStackTrace();
+            } finally {
+                mConnection.setAutoCommit(true); // Restore auto-commit mode
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Return -1 if the insertion fails
+    }
 }
+
 

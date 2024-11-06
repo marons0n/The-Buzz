@@ -2,12 +2,17 @@ package edu.lehigh.cse216.team23.backend;
 
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-
-import io.javalin.http.Handler;
 import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+
+import java.util.Collections;
 
 public class OAuthMiddleware implements Handler {
+    private static final String CLIENT_ID = "1079915895644-k596ha38cdl6p8j77qun5679k2q6snj4.apps.googleusercontent.com";
+
     @Override
     public void handle(Context ctx) throws Exception {
         String token = ctx.header("Authorization");
@@ -15,12 +20,25 @@ public class OAuthMiddleware implements Handler {
             throw new UnauthorizedResponse("Missing or invalid Authorization header");
         }
 
-        token = token.substring(7); // Remove "Bearer " prefix
+        token = token.substring("Bearer ".length());
 
-        try {
-            OAuthConfig.verifyToken(token, new NetHttpTransport(), GsonFactory.getDefaultInstance(), "YOUR_CLIENT_ID");
-        } catch (Exception e) {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(CLIENT_ID))
+                .build();
+
+        GoogleIdToken idToken = verifier.verify(token);
+        if (idToken == null) {
             throw new UnauthorizedResponse("Invalid token");
         }
+
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        String userId = payload.getSubject();  // User's unique ID
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+
+        // Store user information in the context for use in the endpoint
+        ctx.attribute("userId", userId);
+        ctx.attribute("email", email);
+        ctx.attribute("name", name);
     }
 }
