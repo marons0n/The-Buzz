@@ -54,40 +54,42 @@ public class App {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             // Prompt for user action
-            char action = prompt(in);
+            System.out.println("\nMenu 2. Select this option after your first selection from [TD1*-+~q?]");
             System.out.println("  [I] Idea table");
             System.out.println("  [U] User table");
             System.out.println("  [C] Comment table");
             System.out.println("  [V] Vote table");
-            System.out.println("  [M] Return to the main menu");
+            System.out.println("  [M] Return to the main menu\n");
+            char action = prompt(in);
             switch (action) {
                 case '?':
                     menu();
-                    break;
+                    return;
                 case 'q':
                     db.disconnect();
                     return;
                 case 'T':
                     createTableLoop();
-                    break;
+                    return;
                 case 'D':
                     dropTableLoop();
-                    break;
+                    return;
                 case '1':
                     QueryRowLoop();
-                    break;
+                    return;
                 case '*':
                     QueryAllRowsLoop();
-                    break;
+                    return;
                 case '+':
                     InsertRowLoop();
-                    break;
+                    return;
                 case '~':
                     UpdateRowLoop();
-                    break;
+                    return;
                 case '-':
                     DeleteRowLoop();
-                    break;
+                    return;
+                
                 default:
                     System.out.println("Unknown command: " + action);
             }
@@ -107,16 +109,16 @@ public class App {
             switch (action) {
                 case 'I':
                     db.createTable();
-                    break;
+                    return;
                 case 'U':
                     db.createUserTable();
                     return;
-                // case 'C':
-                //     createCommentTable();
-                //     break;
-                // case 'V':
-                //     createVoteTable();
-                //     break;
+                case 'C':
+                    db.createCommentTable();
+                    return;
+                case 'V':
+                    db.createVoteTable();
+                    return;
                 case 'M':
                     return;
             }
@@ -137,16 +139,18 @@ public class App {
             switch (action) {
                 case 'I':
                     db.dropTable();
-                    break;
+                    return;
                 case 'U':
                     db.dropUserTable();
                     return;
-                // case 'C':
-                //     dropCommentTable();
-                //     break;
-                // case 'V':
-                //     dropVoteTable();
-                //     break;
+                case 'C':
+                    db.dropCommentTable();
+                    return;
+                case 'V':
+                    db.dropVoteTable();
+                    return;
+                case 'M':
+                    return;
             }
         }
     }
@@ -165,16 +169,18 @@ public class App {
             switch (action) {
                 case 'I':
                     queryRowById(db, in);
-                    break;
+                    return;
                 case 'U':
                     queryUserRowById(db, in);
                     return;
-                // case 'C':
-                //     queryCommentRowById();
-                //     break;
-                // case 'V':
-                //     queryVoteRowById();
-                //     break;
+                case 'C':
+                    queryCommentRowById(db, in);
+                    return;
+                case 'V':
+                    queryVoteRowById(db, in);
+                    return;
+                case 'M':
+                    return;
             }
         }  
     }
@@ -192,16 +198,18 @@ public class App {
             switch (action) {
                 case 'I':
                     queryAllRows(db);
-                    break;
+                    return;
                 case 'U':
                     queryAllUserRows(db);
                     return;
-                // case 'C':
-                //     queryAllComments();
-                //     break;
-                // case 'V':
-                //     queryAllVotes();
-                //     break;
+                case 'C':
+                    queryAllCommentRows(db);
+                    return;
+                case 'V':
+                    queryAllVoteRows(db);
+                    return;
+                case 'M':
+                    return;
             }
         }  
     }
@@ -219,16 +227,18 @@ public class App {
             switch (action) {
                 case 'I':
                     insertRow(db, in);
-                    break;
+                    return;
                 case 'U':
                     insertUserRow(db, in);
                     return;
-                // case 'C':
-                //     insertCommentRow();
-                //     break;
-                // case 'V':
-                //     insertVoteRow();
-                //     break;
+                case 'C':
+                    insertCommentRow(db, in);
+                    return;
+                case 'V':
+                    insertVoteRow(db, in);
+                    return;
+                case 'M':
+                    return;
             }
         }  
     }
@@ -246,16 +256,18 @@ public class App {
             switch (action) {
                 case 'I':
                     updateRow(db, in);
-                    break;
+                    return;
                 case 'U':
                     updateUserRow(db, in);
                     return;
-                // case 'C':
-                //     updateCommentRow();
-                //     break;
-                // case 'V':
-                //     updateVoteRow();
-                //     break;
+                case 'C':
+                    updateCommentRow(db, in);
+                    return;
+                case 'V':
+                    updateVoteRow(db, in);
+                    return;
+                case 'M':
+                    return;
             }
         }  
     }
@@ -273,16 +285,20 @@ public class App {
             switch (action) {
                 case 'I':
                     deleteRow(db, in);
-                    break;
+                    return;
                 case 'U':
                     deleteUserRow(db, in);
                     return;
-                // case 'C':
-                //     deleteCommentRow();
-                //     break;
-                // case 'V':
-                //     deleteVoteRow();
-                //     break;
+                case 'C':
+                    deleteCommentRow(db, in);
+                    return;
+                case 'V':
+                    deleteVoteRow(db, in);
+                    return;
+                case 'M':
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please choose from IUCV");
             }
         }  
     }

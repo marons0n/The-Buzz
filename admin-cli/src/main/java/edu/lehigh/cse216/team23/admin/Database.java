@@ -13,12 +13,10 @@ import java.util.Map;
  */
 public class Database {
 
-    public static record RowData(int mId, String mSubject, String mMessage, int mVotes) {}
+    public static record RowData(int mId, String mSubject, String mMessage, int mVotes, int userId) {}
     public static record UserRowData(int uId, String uName, String uEmail, String uGender_identity,String uSexual_orientation) {}
     public static record CommentRowData(int commentId, int userId, int postId, String message) {}
     public static record VoteRowData(int voteId, int userId, int postId, int updown) {}
-
-
 
     private Connection mConnection;
 
@@ -29,7 +27,7 @@ public class Database {
             " subject VARCHAR(50) NOT NULL," +
             " message VARCHAR(500) NOT NULL," +
             " votes INT DEFAULT 0 NOT NULL)"+
-            "user_id INT NOT NULL," + 
+            " user_id INT NOT NULL," + 
             " FOREIGN KEY (user_id) REFERENCES users_tbl(user_id)," ;
     
 
@@ -209,7 +207,10 @@ public class Database {
                 String subject = rs.getString("subject");
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
-                res.add(new RowData(id, subject, message, votes));
+                int userId = rs.getInt("user_id");
+                
+
+                res.add(new RowData(id, subject, message, votes, userId));
             }
             rs.close();
         } catch (SQLException e) {
@@ -244,7 +245,8 @@ public class Database {
                 String subject = rs.getString("subject");
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
-                data = new RowData(id, subject, message, votes);
+                int userId = rs.getInt("user_id");
+                data = new RowData(id, subject, message, votes, userId);
             }
             rs.close();
         } catch (SQLException e) {
@@ -832,20 +834,39 @@ public class Database {
 
     // Inserts a new vote into the `votes_tbl` table
     int insertVote(int userId, int postId, int updown) {
-        if (mInsertOneVote == null) init_mInsertOneVote();
+        if (mInsertOneVote == null) init_mInsertOneVote();  // Initialize the insert statement if not already initialized
         int count = 0;
         try {
             System.out.println("Database operation: insertVote()");
+    
+            // Insert the vote record into the 'votes' table
             mInsertOneVote.setInt(1, userId);
             mInsertOneVote.setInt(2, postId);
             mInsertOneVote.setInt(3, updown);
             count += mInsertOneVote.executeUpdate();
+    
+            // Now update the 'votes' count for the post
+            if (updown == 1) {
+                // Increment the votes for the post if it's an upvote (+1)
+                String SQL_UPDATE_VOTE = "UPDATE ideas_tbl SET votes = votes + 1 WHERE id = ?";
+                try (PreparedStatement stmt = mConnection.prepareStatement(SQL_UPDATE_VOTE)) {
+                    stmt.setInt(1, postId);
+                    stmt.executeUpdate();
+                }
+            } else if (updown == -1) {
+                // Decrement the votes for the post if it's a downvote (-1)
+                String SQL_UPDATE_VOTE = "UPDATE ideas_tbl SET votes = votes - 1 WHERE id = ?";
+                try (PreparedStatement stmt = mConnection.prepareStatement(SQL_UPDATE_VOTE)) {
+                    stmt.setInt(1, postId);
+                    stmt.executeUpdate();
+                }
+            }
+    
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return count;
     }
-
     private boolean init_mInsertOneVote() {
         try {
             mInsertOneVote = mConnection.prepareStatement(SQL_INSERT_ONE_VOTE);
