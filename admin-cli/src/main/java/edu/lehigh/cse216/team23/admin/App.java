@@ -310,7 +310,7 @@ public class App {
         }
     }
     static char promptTable(BufferedReader in) {
-        String actions = "IUCV?";
+        String actions = "IUCVM?";
         while (true) {
             System.out.print("[" + actions + "] :> ");
             try {
@@ -531,4 +531,179 @@ public class App {
             return "";
         }
     }
+
+
+    // COMMENT queries
+
+    /**
+     * Query a specific COMMENT row by ID.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void queryCommentRowById(Database db, BufferedReader in) {
+        int id = getInt(in, "Enter the row ID");
+        if (id == -1) return;
+        Database.CommentRowData row = db.selectOneComment(id);
+        if (row != null) {
+            System.out.println("Row [" + row.commentId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Message: " + row.message());
+        } else {
+            System.out.println("Row not found.");
+        }
+    }
+
+    /**
+     * Query all rows from the COMMENT table.
+     *
+     * @param db The database object.
+     */
+    static void queryAllCommentRows(Database db) {
+        ArrayList<Database.CommentRowData> rows = db.selectAllComments();
+        if (rows != null) {
+            System.out.println("All comments in the database:");
+            for (Database.CommentRowData row : rows) {
+                System.out.println("Row [" + row.commentId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Message: " + row.message());
+            }
+        } else {
+            System.out.println("No data found.");
+        }
+    }
+
+    /**
+     * Insert a new COMMENT row into the table.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void insertCommentRow(Database db, BufferedReader in) {
+        int userId = getInt(in, "Enter the user ID");
+        int postId = getInt(in, "Enter the post ID");
+        String message = getString(in, "Enter the message");
+        if (!message.isEmpty()) {
+            int result = db.insertComment(userId, postId, message);
+            System.out.println(result + " row(s) inserted.");
+        } else {
+            System.out.println("Invalid input. Please try again.");
+        }
+    }
+
+    /**
+     * Update a COMMENT row in the table.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void updateCommentRow(Database db, BufferedReader in) {
+        int id = getInt(in, "Enter the row ID");
+        if (id == -1) return;
+        String newMessage = getString(in, "Enter the new message");
+        if (!newMessage.isEmpty()) {
+            int result = db.updateComment(id, newMessage);
+            System.out.println(result + " row(s) updated.");
+        } else {
+            System.out.println("Invalid input. Please try again.");
+        }
+    }
+
+    /**
+     * Delete a COMMENT row from the table.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void deleteCommentRow(Database db, BufferedReader in) {
+        int id = getInt(in, "Enter the row ID");
+        if (id == -1) return;
+        int result = db.deleteComment(id);
+        System.out.println(result + " row(s) deleted.");
+    }
+
+
+
+    // VOTE queries
+
+    /**
+     * Query a specific VOTE row by ID.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void queryVoteRowById(Database db, BufferedReader in) {
+        int id = getInt(in, "Enter the row ID");
+        if (id == -1) return;
+        Database.VoteRowData row = db.selectOneVote(id);
+        if (row != null) {
+            System.out.println("Row [" + row.voteId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Vote: " + (row.updown() == 1 ? "Upvote" : "Downvote"));
+        } else {
+            System.out.println("Row not found.");
+        }
+    }
+
+    /**
+     * Query all rows from the VOTE table.
+     *
+     * @param db The database object.
+     */
+    static void queryAllVoteRows(Database db) {
+        ArrayList<Database.VoteRowData> rows = db.selectAllVotes();
+        if (rows != null) {
+            System.out.println("All votes in the database:");
+            for (Database.VoteRowData row : rows) {
+                System.out.println("Row [" + row.voteId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Vote: " + (row.updown() == 1 ? "Upvote" : "Downvote"));
+            }
+        } else {
+            System.out.println("No data found.");
+        }
+    }
+
+    /**
+     * Insert a new VOTE row into the table.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void insertVoteRow(Database db, BufferedReader in) {
+        int userId = getInt(in, "Enter the user ID");
+        int postId = getInt(in, "Enter the post ID");
+        int updown = getInt(in, "Enter 1 for upvote, -1 for downvote");
+        if (updown == 1 || updown == -1) {
+            int result = db.insertVote(userId, postId, updown);
+            System.out.println(result + " row(s) inserted.");
+        } else {
+            System.out.println("Invalid vote input. Please try again.");
+        }
+    }
+
+    /**
+     * Update a VOTE row in the table.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void updateVoteRow(Database db, BufferedReader in) {
+        int id = getInt(in, "Enter the row ID");
+        if (id == -1) return;
+        int newVote = getInt(in, "Enter the new vote (1 for upvote, -1 for downvote)");
+        if (newVote == 1 || newVote == -1) {
+            int result = db.updateVote(id, newVote);
+            System.out.println(result + " row(s) updated.");
+        } else {
+            System.out.println("Invalid input. Please try again.");
+        }
+    }
+
+    /**
+     * Delete a VOTE row from the table.
+     *
+     * @param db The database object.
+     * @param in BufferedReader for reading user input.
+     */
+    static void deleteVoteRow(Database db, BufferedReader in) {
+        int id = getInt(in, "Enter the row ID");
+        if (id == -1) return;
+        int result = db.deleteVote(id);
+        System.out.println(result + " row(s) deleted.");
+    }
+
+
 }

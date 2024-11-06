@@ -28,7 +28,12 @@ public class Database {
             " id SERIAL PRIMARY KEY," + 
             " subject VARCHAR(50) NOT NULL," +
             " message VARCHAR(500) NOT NULL," +
-            " votes INT DEFAULT 0 NOT NULL)";
+            " votes INT DEFAULT 0 NOT NULL)"+
+            "user_id INT NOT NULL," + 
+            " FOREIGN KEY (user_id) REFERENCES users_tbl(user_id)," ;
+    
+
+            ;
     
     private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
