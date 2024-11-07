@@ -30,7 +30,7 @@ public class Database {
    public static record RowDataIdeas(int mId, int mVotes, String mMessage) {
    }
 
-   public static record RowDataComments(int mCommentId, int mUserId, int mPostId, String mText) {
+   public static record RowDataComments(int mCommentId, String mUserId, int mPostId, String mText) {
    }
 
 
@@ -551,7 +551,7 @@ public class Database {
             ResultSet rs = mSelectAllComments.executeQuery();
             while (rs.next()) {
                 int commentid = rs.getInt("commentid");
-                int userid = rs.getInt("userid");
+                String userid = rs.getString("userid");
                 int postid = rs.getInt("postid");
                 String text = rs.getString("text");
                 RowDataComments data = new RowDataComments(commentid, userid, postid, text);
@@ -761,6 +761,19 @@ public class Database {
             e.printStackTrace();
         }
         return -1; // Return -1 if the insertion fails
+    }
+
+    /**
+     * Check if a user exists in the database
+     * 
+     * @param userId The ID of the user to check
+     * @return true if the user exists, false otherwise
+     */
+    public boolean userExists(String userId) {
+        // Implement the logic to check if the user exists in the database
+        // This is a placeholder implementation
+        // Replace with actual database query logic
+        return false;
     }
 }
 
