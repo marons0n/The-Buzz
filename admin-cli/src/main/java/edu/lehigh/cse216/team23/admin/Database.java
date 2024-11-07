@@ -29,21 +29,19 @@ public class Database {
             " votes INT DEFAULT 0 NOT NULL)"+
             " user_id INT NOT NULL," + 
             " FOREIGN KEY (user_id) REFERENCES users_tbl(user_id)," ;
-    
-
-            ;
+            
     
     private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
     private static final String SQL_INSERT_ONE_IDEAS = 
-            "INSERT INTO ideas_tbl (subject, message, votes) VALUES (?, ?, 0)";
+            "INSERT INTO ideas_tbl (subject, message, votes, user_id) VALUES (?, ?, 0, ?)";
 
     private static final String SQL_UPDATE_ONE_IDEAS = 
             "UPDATE ideas_tbl SET message = ? WHERE id = ?";
 
     private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
-    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, subject, message, votes FROM ideas_tbl";
+    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, subject, message, votes, user_id FROM ideas_tbl";
 
     private static final String SQL_SELECT_ONE_IDEAS = 
             "SELECT * FROM ideas_tbl WHERE id = ?";
@@ -110,13 +108,14 @@ public class Database {
     /**
      * Inserts a row into the `ideas_tbl` table.
      */
-    int insertRow(String subject, String message) {
+    int insertRow(String subject, String message, int user_id) {
         if (mInsertOne == null) init_mInsertOne();
         int count = 0;
         try {
             System.out.println("Database operation: insertRow()");
             mInsertOne.setString(1, subject);
             mInsertOne.setString(2, message);
+            mInsertOne.setInt(3, user_id);
             count += mInsertOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -832,7 +831,7 @@ public class Database {
         return true;
     }
 
-    // Inserts a new vote into the `votes_tbl` table
+    // Inserts a new vote into the votes_tbl
     int insertVote(int userId, int postId, int updown) {
         if (mInsertOneVote == null) init_mInsertOneVote();  // Initialize the insert statement if not already initialized
         int count = 0;
@@ -845,9 +844,9 @@ public class Database {
             mInsertOneVote.setInt(3, updown);
             count += mInsertOneVote.executeUpdate();
     
-            // Now update the 'votes' count for the post
+            // update the 'votes' count for the post
             if (updown == 1) {
-                // Increment the votes for the post if it's an upvote (+1)
+                // Increment the votes for the post, found by post id, if it's an upvote (+1)
                 String SQL_UPDATE_VOTE = "UPDATE ideas_tbl SET votes = votes + 1 WHERE id = ?";
                 try (PreparedStatement stmt = mConnection.prepareStatement(SQL_UPDATE_VOTE)) {
                     stmt.setInt(1, postId);

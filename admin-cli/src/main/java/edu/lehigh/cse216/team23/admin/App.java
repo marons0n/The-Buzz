@@ -387,8 +387,9 @@ public class App {
     static void insertRow(Database db, BufferedReader in) {
         String subject = getString(in, "Enter the subject");
         String message = getString(in, "Enter the message");
+        int user_id = getInt(in, "Enter the user ID");
         if (!subject.isEmpty() && !message.isEmpty()) {
-            int result = db.insertRow(subject, message);
+            int result = db.insertRow(subject, message, user_id);
             System.out.println(result + " row(s) inserted.");
         } else {
             System.out.println("Invalid input. Please try again.");
