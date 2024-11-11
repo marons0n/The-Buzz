@@ -30,7 +30,7 @@ public class Database {
    public static record RowDataIdeas(int mId, int mVotes, String mMessage) {
    }
 
-   public static record RowDataComments(int mCommentId, String mUserId, int mPostId, String mText) {
+   public static record RowDataComments(int mCommentId, int mUserId, int mPostId, String mText) {
    }
 
 
@@ -251,29 +251,6 @@ public class Database {
            return false;
        }
        return true;
-   }
-
-
-  /**
-    * Insert a row into ideas table in the database
-    *
-    * @param votes   The lieks for this new row
-    * @param message The message body for this new row
-    * @return The number of rows that were inserted
-    */
-   int insertRow(int votes, String message) {
-       if (mInsertOne == null) // not yet initialized, do lazy init
-           init_mInsertOne(); // lazy init
-       int count = 0;
-       try {
-           System.out.println("Database operation: insertRow(String, int)");
-           mInsertOne.setInt(1, votes);
-           mInsertOne.setString(2, message);
-           count += mInsertOne.executeUpdate();
-       } catch (SQLException e) {
-           e.printStackTrace();
-       }
-       return count;
    }
 
 
@@ -551,7 +528,7 @@ public class Database {
             ResultSet rs = mSelectAllComments.executeQuery();
             while (rs.next()) {
                 int commentid = rs.getInt("commentid");
-                String userid = rs.getString("userid");
+                int userid = rs.getInt("userid");
                 int postid = rs.getInt("postid");
                 String text = rs.getString("text");
                 RowDataComments data = new RowDataComments(commentid, userid, postid, text);
@@ -677,12 +654,12 @@ public class Database {
         return -1; // Return -1 if the insertion fails
         }
 
-    public int insertRow(String userId, int votes, String message) {
-        String query = "INSERT INTO ideas_tbl (userid, votes, message) VALUES (?, ?, ?) RETURNING id";
+
+    public int insertRow(String userId, String message) {
+        String query = "INSERT INTO ideas_tbl (userid, message) VALUES (?, ?) RETURNING id";
         try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
             stmt.setString(1, userId);
-            stmt.setInt(2, votes);
-            stmt.setString(3, message);
+            stmt.setString(2, message);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1); // Return the new row ID
@@ -761,19 +738,6 @@ public class Database {
             e.printStackTrace();
         }
         return -1; // Return -1 if the insertion fails
-    }
-
-    /**
-     * Check if a user exists in the database
-     * 
-     * @param userId The ID of the user to check
-     * @return true if the user exists, false otherwise
-     */
-    public boolean userExists(String userId) {
-        // Implement the logic to check if the user exists in the database
-        // This is a placeholder implementation
-        // Replace with actual database query logic
-        return false;
     }
 }
 

@@ -11,7 +11,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import java.util.Collections;
 
 public class OAuthMiddleware implements Handler {
-    private static final String CLIENT_ID = "1079915895644-k596ha38cdl6p8j77qun5679k2q6snj4.apps.googleusercontent.com";
+    private static final String CLIENT_ID = OAuthConfig.getClientId();
 
     @Override
     public void handle(Context ctx) throws Exception {

@@ -48,6 +48,12 @@ public class OAuthConfig {
     }
 
     public static String getClientId() {
-        return "1079915895644-m2e630k8ik1oc46ukmlhil5jadh3avaf.apps.googleusercontent.com";
+        // print client id
+        return System.getenv("GOOGLE_CLIENT_ID");
+    }
+
+    public static String getClientSecret() {
+        // print client secret
+        return System.getenv("GOOGLE_CLIENT_SECRET");
     }
 }

@@ -11,7 +11,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import java.util.Collections;
 
 public class CookieAuthMiddleware implements Handler {
-    private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+    private static final String CLIENT_ID = OAuthConfig.getClientId();
 
     @Override
     public void handle(Context ctx) throws Exception {
