@@ -49,11 +49,16 @@ public class OAuthConfig {
 
     public static String getClientId() {
         // print client id
-        return System.getenv("GOOGLE_CLIENT_ID");
+        return System.getenv("CLIENT_ID");
     }
 
     public static String getClientSecret() {
         // print client secret
-        return System.getenv("GOOGLE_CLIENT_SECRET");
+        return System.getenv("CLIENT_SECRET");
+    }
+
+    public static String getRedirectUri() {
+        // print redirect uri
+        return System.getenv("REDIRECT_URI");
     }
 }
