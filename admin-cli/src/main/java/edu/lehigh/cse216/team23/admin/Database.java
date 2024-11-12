@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class Database {
 
-    public static record RowData(int mId, String mSubject, String mMessage, int mVotes, int userId) {}
+    public static record RowData(int mId, String mMessage, int mVotes, int userId) {}
     public static record UserRowData(int uId, String uName, String uEmail, String uGender_identity,String uSexual_orientation) {}
     public static record CommentRowData(int commentId, int userId, int postId, String message) {}
     public static record VoteRowData(int voteId, int userId, int postId, int updown) {}
@@ -24,7 +24,6 @@ public class Database {
     private static final String SQL_CREATE_TABLE_IDEA = 
             "CREATE TABLE IF NOT EXISTS ideas_tbl (" + 
             " id SERIAL PRIMARY KEY," + 
-            " subject VARCHAR(50) NOT NULL," +
             " message VARCHAR(500) NOT NULL," +
             " votes INT DEFAULT 0 NOT NULL)"+
             " user_id INT NOT NULL," + 
@@ -34,14 +33,14 @@ public class Database {
     private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
     private static final String SQL_INSERT_ONE_IDEAS = 
-            "INSERT INTO ideas_tbl (subject, message, votes, user_id) VALUES (?, ?, 0, ?)";
+            "INSERT INTO ideas_tbl (message, votes, user_id) VALUES (?, 0, ?)";
 
     private static final String SQL_UPDATE_ONE_IDEAS = 
             "UPDATE ideas_tbl SET message = ? WHERE id = ?";
 
     private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
-    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, subject, message, votes, user_id FROM ideas_tbl";
+    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, message, votes, user_id FROM ideas_tbl";
 
     private static final String SQL_SELECT_ONE_IDEAS = 
             "SELECT * FROM ideas_tbl WHERE id = ?";
@@ -108,14 +107,14 @@ public class Database {
     /**
      * Inserts a row into the `ideas_tbl` table.
      */
-    int insertRow(String subject, String message, int user_id) {
+    int insertRow(String message, int user_id) {
         if (mInsertOne == null) init_mInsertOne();
         int count = 0;
         try {
             System.out.println("Database operation: insertRow()");
-            mInsertOne.setString(1, subject);
-            mInsertOne.setString(2, message);
-            mInsertOne.setInt(3, user_id);
+            mInsertOne.setString(1, message);
+            // mInsertOne.setInt(2, 0); //votes
+            mInsertOne.setInt(2, user_id); //id
             count += mInsertOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -203,13 +202,12 @@ public class Database {
             ResultSet rs = mSelectAll.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
-                String subject = rs.getString("subject");
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
                 int userId = rs.getInt("user_id");
                 
 
-                res.add(new RowData(id, subject, message, votes, userId));
+                res.add(new RowData(id, message, votes, userId));
             }
             rs.close();
         } catch (SQLException e) {
@@ -241,11 +239,10 @@ public class Database {
             mSelectOne.setInt(1, id);
             ResultSet rs = mSelectOne.executeQuery();
             if (rs.next()) {
-                String subject = rs.getString("subject");
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
                 int userId = rs.getInt("user_id");
-                data = new RowData(id, subject, message, votes, userId);
+                data = new RowData(id, message, votes, userId);
             }
             rs.close();
         } catch (SQLException e) {
