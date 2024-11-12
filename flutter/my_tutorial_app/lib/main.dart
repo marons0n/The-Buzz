@@ -5,10 +5,13 @@ import './models/IdeaItem.dart';
 import './net/webRequests.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
+final client = http.Client();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -18,8 +21,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'The Buzz',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
-        useMaterial3: true,
+        brightness: Brightness.light,
+        primaryColor: Colors.blue[700],
+        colorScheme: ColorScheme.light(
+          primary: Colors.blue[700]!,
+          secondary: Colors.purple[500]!,
+        ),
+        fontFamily: 'Roboto',
       ),
       home: const LoginPage(),
     );
@@ -49,13 +57,13 @@ class _LoginPageState extends State<LoginPage> {
     } catch (error) {
       setState(() {
         _message = 'Please login with a Lehigh University email (@lehigh.edu)';
-        //_message = 'Sign in error: $error';
       });
     }
   }
 
   Future<void> _handleSignInOnServer(GoogleSignInAccount account) async {
-    final url = Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/login'); // Adjust the URL as needed
+    final url = Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/login');
+    
     try {
       final response = await http.post(
         url,
@@ -66,8 +74,16 @@ class _LoginPageState extends State<LoginPage> {
           'name': account.displayName,
         }),
       );
-
+      
+      print('Status code: ${response.statusCode}');
       if (response.statusCode == 200) {
+        
+        final jsonResponse = json.decode(response.body);
+        final token = jsonResponse['token']; // Adjust based on your server's response
+        final prefs = await SharedPreferences.getInstance();
+        
+        await prefs.setString('auth_token', token);
+        print('Token stored: $token');
         setState(() {
           _message = 'Successfully logged in on server';
         });
@@ -127,7 +143,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 20),
-              // Centering the error message
               Center(
                 child: Text(_message, style: TextStyle(color: Colors.white)),
               ),
@@ -151,7 +166,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   GoogleSignInAccount? _currentUser;
-  String _message = '';
 
   @override
   void initState() {
@@ -171,9 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
         MaterialPageRoute(builder: (context) => LoginPage()),
       );
     } catch (error) {
-      setState(() {
-        _message = 'Sign out error: $error';
-      });
+      print('Sign out error: $error');
     }
   }
 
@@ -181,25 +193,62 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.blue[300]!, Colors.purple[200]!],
+            ),
+          ),
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.electric_bolt, color: Colors.yellow[700], size: 30),
+            SizedBox(width: 10),
+            Text(
+              widget.title,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 28,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    offset: Offset(1.0, 1.0),
+                    blurRadius: 3.0,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: _handleSignOut,
           ),
         ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Logged in as: ${_currentUser?.displayName}'),
-            const HttpReqWords(),
-            SizedBox(height: 20),
-            Text(_message),
-          ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
         ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(20),
+          child: Container(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Text(
+              'Share Your Ideas!',
+              style: TextStyle(color: Colors.black54, fontSize: 14),
+            ),
+          ),
+        ),
+      ),
+      body: const Center(
+        child: HttpReqWords(),
       ),
     );
   }
@@ -213,10 +262,10 @@ class HttpReqWords extends StatefulWidget {
 }
 
 class _HttpReqWordsState extends State<HttpReqWords> {
-  var _words = <String>['a', 'b', 'c', 'd'];
   final _biggerFont = const TextStyle(fontSize: 18);
-  late Future<List<String>> _future_words;
   late Future<List<IdeaItem>> _future_list_ideas;
+  final TextEditingController _controller = TextEditingController();
+  bool _isTextBoxVisible = false;
 
   @override
   void initState() {
@@ -230,64 +279,196 @@ class _HttpReqWordsState extends State<HttpReqWords> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return build_v3(context);
+  void _toggleTextBox() {
+    setState(() {
+      _isTextBoxVisible = !_isTextBoxVisible;
+    });
   }
 
-  Widget build_v3(BuildContext context) {
-    return FutureBuilder<List<IdeaItem>>(
-      future: _future_list_ideas,
-      builder: (BuildContext context, AsyncSnapshot<List<IdeaItem>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else if (snapshot.hasData) {
-          return ListView.builder(
-            shrinkWrap: true,
+  Future<void> _submitIdea() async {
+    final newIdea = _controller.text.trim();
+    if (newIdea.isNotEmpty) {
+      try {
+        await submitNewIdeaFunction(newIdea);
+        setState(() {
+          _controller.clear();
+        });
+        _retry();
+      } catch (e) {
+        print("Error submitting idea: $e");
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (!_isTextBoxVisible)
+          Padding(
             padding: const EdgeInsets.all(16.0),
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, i) {
-              final idea = snapshot.data![i];
-              return Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      "ID: ${idea.mId}, Message: ${idea.mMessage}",
-                      style: _biggerFont,
+            child: ElevatedButton.icon(
+              icon: Icon(Icons.lightbulb, color: Colors.yellow[700]),
+              label: Text('Share an Idea'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 5,
+              ),
+              onPressed: _toggleTextBox,
+            ),
+          ),
+        if (_isTextBoxVisible)
+          AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              elevation: 5,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        labelText: 'Enter your brilliant idea',
+                        border: InputBorder.none,
+                        prefixIcon: Icon(Icons.create, color: Colors.purple[300]),
+                      ),
+                      maxLines: 3,
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text("${idea.mLikes}"),
-                        IconButton(
-                          icon: Icon(Icons.thumb_up),
-                          onPressed: () async {
-                            try {
-                              bool success = await likeIdea(idea.mId);
-                              if (success) {
-                                setState(() {
-                                  _future_list_ideas = fetchIdeas();
-                                });
-                              }
-                            } catch (e) {
-                              print("Error liking idea: $e");
-                            }
+                        TextButton(
+                          child: Text('Cancel'),
+                          onPressed: _toggleTextBox,
+                        ),
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.send),
+                          label: Text('Share'),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          onPressed: () {
+                            _submitIdea();
+                            _toggleTextBox();
                           },
                         ),
                       ],
                     ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        Expanded(
+          child: FutureBuilder<List<IdeaItem>>(
+            future: _future_list_ideas,
+            builder: (BuildContext context, AsyncSnapshot<List<IdeaItem>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.indigo),
+                      ),
+                      SizedBox(height: 16),
+                      Text("Loading ideas...", style: TextStyle(color: Colors.indigo)),
+                    ],
                   ),
-                  Divider(height: 1.0),
-                ],
-              );
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (snapshot.hasData) {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, i) {
+                    final idea = snapshot.data![i];
+                    return Card(
+                      elevation: 2,
+                      color: Colors.white,
+                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Idea ${idea.mId}",
+                              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              idea.mMessage,
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("${idea.mLikes} likes", style: TextStyle(color: Colors.indigo)),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.thumb_up, color: Colors.green),
+                                      onPressed: () async {
+                                        try {
+                                          bool success = await likeIdea(idea.mId);
+                                          if (success) {
+                                            setState(() {
+                                              _future_list_ideas = fetchIdeas();
+                                            });
+                                          }
+                                        } catch (e) {
+                                          print("Error liking idea: $e");
+                                        }
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.thumb_down, color: Colors.red),
+                                      onPressed: () async {
+                                        try {
+                                          bool success = await dislikeIdea(idea.mId, client);
+                                          if (success) {
+                                            setState(() {
+                                              _future_list_ideas = fetchIdeas();
+                                            });
+                                          }
+                                        } catch (e) {
+                                          print("Error disliking idea: $e");
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              } else {
+                return const Text('No data available');
+              }
             },
-          );
-        } else {
-          return const Text('No data available');
-        }
-      },
+          ),
+        ),
+      ],
     );
   }
 }
