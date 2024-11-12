@@ -2,6 +2,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/IdeaItem.dart';
 
+
+
 Future<List<IdeaItem>> fetchIdeas() async {
   final response = await http.get(Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas'));
 
@@ -35,12 +37,12 @@ Future<bool> likeIdea(int ideaId) async {
     throw Exception('Failed to like idea');
   }
 }
-Future<bool> dislikeIdea(int ideaId) async {
+Future<bool> dislikeIdea(int ideaId, http.Client client) async {
   final currentLikes = await getCurrentLikes(ideaId);
 
   // Check if the idea has at least 1 like
   if (currentLikes > 0) {
-    final response = await http.put(
+    final response = await client.put(
       Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/$ideaId'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -86,3 +88,8 @@ Future<int> getCurrentLikes(int ideaId) async {
     throw Exception('Failed to load idea');
   }
 }
+
+
+//below for testing
+typedef SubmitNewIdeaFunction = Future<void> Function(String idea);
+SubmitNewIdeaFunction submitNewIdeaFunction = submitNewIdea; 
