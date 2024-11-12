@@ -31,6 +31,7 @@ public class App {
         System.out.println("  [+] Insert a new row");
         System.out.println("  [~] Update a row");
         System.out.println("  [-] Delete a row");
+        System.out.println("  [/] Hide a row");
         System.out.println("  [q] Quit the program");
         System.out.println("  [?] Show this menu");
     }
@@ -64,32 +65,34 @@ public class App {
             switch (action) {
                 case '?':
                     menu();
-                    return;
+                    break;
                 case 'q':
                     db.disconnect();
                     return;
                 case 'T':
                     createTableLoop();
-                    return;
+                    break;
                 case 'D':
                     dropTableLoop();
-                    return;
+                    break;
                 case '1':
                     QueryRowLoop();
-                    return;
+                    break;
                 case '*':
                     QueryAllRowsLoop();
-                    return;
+                    break;
                 case '+':
                     InsertRowLoop();
-                    return;
+                    break;
                 case '~':
                     UpdateRowLoop();
-                    return;
+                    break;
+                case '/':
+                    HideRowLoop();
+                    break;
                 case '-':
                     DeleteRowLoop();
-                    return;
-                
+                    break;
                 default:
                     System.out.println("Unknown command: " + action);
             }
@@ -109,18 +112,29 @@ public class App {
             switch (action) {
                 case 'I':
                     db.createTable();
-                    return;
+                    break;
                 case 'U':
                     db.createUserTable();
-                    return;
+                    break;
                 case 'C':
                     db.createCommentTable();
-                    return;
+                    break;
                 case 'V':
                     db.createVoteTable();
-                    return;
+                    break;
                 case 'M':
-                    return;
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
+                return;
             }
         }
     }
@@ -139,17 +153,28 @@ public class App {
             switch (action) {
                 case 'I':
                     db.dropTable();
-                    return;
+                    break;
                 case 'U':
                     db.dropUserTable();
-                    return;
+                    break;
                 case 'C':
                     db.dropCommentTable();
-                    return;
+                    break;
                 case 'V':
                     db.dropVoteTable();
-                    return;
+                    break;
                 case 'M':
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
                     return;
             }
         }
@@ -169,17 +194,28 @@ public class App {
             switch (action) {
                 case 'I':
                     queryRowById(db, in);
-                    return;
+                    break;
                 case 'U':
                     queryUserRowById(db, in);
-                    return;
+                    break;
                 case 'C':
                     queryCommentRowById(db, in);
-                    return;
+                    break;
                 case 'V':
                     queryVoteRowById(db, in);
-                    return;
+                    break;
                 case 'M':
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
                     return;
             }
         }  
@@ -198,17 +234,28 @@ public class App {
             switch (action) {
                 case 'I':
                     queryAllRows(db);
-                    return;
+                    break;
                 case 'U':
                     queryAllUserRows(db);
-                    return;
+                    break;
                 case 'C':
                     queryAllCommentRows(db);
-                    return;
+                    break;
                 case 'V':
                     queryAllVoteRows(db);
-                    return;
+                    break;
                 case 'M':
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
                     return;
             }
         }  
@@ -227,18 +274,29 @@ public class App {
             switch (action) {
                 case 'I':
                     insertRow(db, in);
-                    return;
+                    break;
                 case 'U':
                     insertUserRow(db, in);
-                    return;
+                    break;
                 case 'C':
                     insertCommentRow(db, in);
-                    return;
+                    break;
                 case 'V':
                     insertVoteRow(db, in);
-                    return;
+                    break;
                 case 'M':
-                    return;
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
+                    return; //return to main menu
             }
         }  
     }
@@ -256,17 +314,68 @@ public class App {
             switch (action) {
                 case 'I':
                     updateRow(db, in);
-                    return;
+                    break;
                 case 'U':
                     updateUserRow(db, in);
-                    return;
+                    break;
                 case 'C':
                     updateCommentRow(db, in);
-                    return;
+                    break;
                 case 'V':
                     updateVoteRow(db, in);
-                    return;
+                    break;
                 case 'M':
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
+                    return;
+            }
+        }  
+    }
+
+    public static void HideRowLoop(){
+        Database db = Database.getDatabase();
+        if (db == null) {
+            System.err.println("Unable to connect to the database, exiting.");
+            System.exit(1);
+        }
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            // Prompt for user action
+            char action = promptTable(in);
+            switch (action) {
+                case 'I':
+                    hideRow(db, in);
+                    break;
+                case 'U':
+                    hideUserRow(db, in);
+                    break;
+                case 'C':
+                    System.out.println("Can't hide comments yet! Check back in next week if we ever implement that");
+                    break;
+                case 'V':
+                    System.out.println("Can't hide votes!");
+                    break;
+                case 'M':
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
                     return;
             }
         }  
@@ -285,17 +394,28 @@ public class App {
             switch (action) {
                 case 'I':
                     deleteRow(db, in);
-                    return;
+                    break;
                 case 'U':
                     deleteUserRow(db, in);
-                    return;
+                    break;
                 case 'C':
                     deleteCommentRow(db, in);
-                    return;
+                    break;
                 case 'V':
                     deleteVoteRow(db, in);
-                    return;
+                    break;
                 case 'M':
+                System.out.println("\nMain Menu");
+                System.out.println("  [T] Create table");
+                System.out.println("  [D] Drop table");
+                System.out.println("  [1] Query a specific row by ID");
+                System.out.println("  [*] Query all rows");
+                System.out.println("  [+] Insert a new row");
+                System.out.println("  [~] Update a row");
+                System.out.println("  [-] Delete a row");
+                System.out.println("  [/] Hide a row");
+                System.out.println("  [q] Quit the program");
+                System.out.println("  [?] Show this menu");
                     return;
                 default:
                     System.out.println("Invalid choice. Please choose from IUCV");
@@ -311,7 +431,7 @@ public class App {
      * @return The character corresponding to the chosen menu option.
      */
     static char prompt(BufferedReader in) {
-        String actions = "TD1*-+~q?";
+        String actions = "TD1*-+~q/?";
         while (true) {
             System.out.print("[" + actions + "] :> ");
             try {
@@ -413,6 +533,18 @@ public class App {
         }
     }
 
+
+    static void hideRow(Database db, BufferedReader in) {
+        int user_id = getInt(in, "Enter the id of the post you would like to hide");
+        int displayed = getInt(in, "Enter 0 to hide post. Enter 1 to allow post to be displayed");
+        if (displayed == 1 || displayed == 0) {
+            int result = db.HideOne(user_id, displayed);
+            System.out.println(result + " row(s) updated.");
+        } else {
+            System.out.println("Invalid vote input. Please try again.");
+        }
+    }
+
     /**
      * Delete a row from the table.
      *
@@ -497,6 +629,17 @@ public class App {
             System.out.println(result + " row(s) updated.");
         } else {
             System.out.println("Invalid input. Please try again.");
+        }
+    }
+
+    static void hideUserRow(Database db, BufferedReader in) {
+        int user_id = getInt(in, "Enter the id of the user you would like to restrict");
+        int displayed = getInt(in, "Enter 0 to restrict user. Enter 1 to allow them to post");
+        if (displayed == 1 || displayed == 0) {
+            int result = db.HideOneUser(user_id, displayed);
+            System.out.println(result + " row(s) updated.");
+        } else {
+            System.out.println("Invalid vote input. Please try again.");
         }
     }
 
@@ -720,6 +863,4 @@ public class App {
         int result = db.deleteVote(id);
         System.out.println(result + " row(s) deleted.");
     }
-
-
 }

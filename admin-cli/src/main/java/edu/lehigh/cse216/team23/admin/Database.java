@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class Database {
 
-    public static record RowData(int mId, String mMessage, int mVotes, int userId) {}
+    public static record RowData(int mId, String mMessage, int mVotes, int userId, int displayed) {}
     public static record UserRowData(int uId, String uName, String uEmail, String uGender_identity,String uSexual_orientation) {}
     public static record CommentRowData(int commentId, int userId, int postId, String message) {}
     public static record VoteRowData(int voteId, int userId, int postId, int updown) {}
@@ -27,23 +27,27 @@ public class Database {
             " message VARCHAR(500) NOT NULL," +
             " votes INT DEFAULT 0 NOT NULL)"+
             " user_id INT NOT NULL," + 
-            " FOREIGN KEY (user_id) REFERENCES users_tbl(user_id)," ;
+            " displayed INT DEFAULT 1," +
+            " FOREIGN KEY (user_id) REFERENCES users_tbl(user_id)" ;
             
     
     private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
     private static final String SQL_INSERT_ONE_IDEAS = 
-            "INSERT INTO ideas_tbl (message, votes, user_id) VALUES (?, 0, ?)";
+            "INSERT INTO ideas_tbl (message, votes, user_id, displayed) VALUES (?, 0, ?, 1)";
 
     private static final String SQL_UPDATE_ONE_IDEAS = 
             "UPDATE ideas_tbl SET message = ? WHERE id = ?";
 
     private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
-    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, message, votes, user_id FROM ideas_tbl";
+    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, message, votes, user_id, displayed FROM ideas_tbl";
 
     private static final String SQL_SELECT_ONE_IDEAS = 
             "SELECT * FROM ideas_tbl WHERE id = ?";
+
+    private static final String SQL_HIDE_IDEAS =
+            "UPDATE ideas_tbl SET displayed = ? WHERE id = ?";
 
     // Prepared Statements
     private PreparedStatement mCreateTable;
@@ -53,6 +57,7 @@ public class Database {
     private PreparedStatement mDeleteOne;
     private PreparedStatement mSelectAll;
     private PreparedStatement mSelectOne;
+    private PreparedStatement mHideOne;
 
     /**
      * Creates the `ideas_tbl` table in the database if it doesn't exist.
@@ -108,18 +113,25 @@ public class Database {
      * Inserts a row into the `ideas_tbl` table.
      */
     int insertRow(String message, int user_id) {
-        if (mInsertOne == null) init_mInsertOne();
-        int count = 0;
-        try {
-            System.out.println("Database operation: insertRow()");
-            mInsertOne.setString(1, message);
-            // mInsertOne.setInt(2, 0); //votes
-            mInsertOne.setInt(2, user_id); //id
-            count += mInsertOne.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (UserRestricted(user_id) == true){
+            System.out.println("Error: Can not post idea, user with ID " + user_id + " is restricted");
+            return 0;
         }
-        return count;
+        else{ //if user not restricted, post the idea :)
+            if (mInsertOne == null) init_mInsertOne();
+            int count = 0;
+            try {
+                System.out.println("Database operation: insertRow()");
+                mInsertOne.setString(1, message);
+                // mInsertOne.setInt(2, 0); //votes
+                mInsertOne.setInt(2, user_id); //id
+                count += mInsertOne.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return count;
+        }
+        
     }
 
     private boolean init_mInsertOne() {
@@ -205,9 +217,9 @@ public class Database {
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
                 int userId = rs.getInt("user_id");
-                
-
-                res.add(new RowData(id, message, votes, userId));
+                int displayed = rs.getInt("displayed");  // Retrieve displayed
+    
+                res.add(new RowData(id, message, votes, userId, displayed));
             }
             rs.close();
         } catch (SQLException e) {
@@ -215,6 +227,7 @@ public class Database {
         }
         return res;
     }
+    
 
     private boolean init_mSelectAll() {
         try {
@@ -242,7 +255,8 @@ public class Database {
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
                 int userId = rs.getInt("user_id");
-                data = new RowData(id, message, votes, userId);
+                int displayed = 1;
+                data = new RowData(id, message, votes, userId, displayed);
             }
             rs.close();
         } catch (SQLException e) {
@@ -256,6 +270,32 @@ public class Database {
             mSelectOne = mConnection.prepareStatement(SQL_SELECT_ONE_IDEAS);
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement: mSelectOne");
+            e.printStackTrace();
+            disconnect();
+            return false;
+        }
+        return true;
+    }
+
+    //allows admin to set idea "displayed" to 0 to hide it, or to 1 to show 
+    int HideOne(int id, int displayed) {
+        if (mHideOne == null) init_mHideIdea();
+        int res = -1;
+        try {
+            System.out.println("Database operation: hideIdea()");
+            mHideOne.setInt(1, displayed);  // Set displayed to 0 or 1
+            mHideOne.setInt(2, id); // 
+            res = mHideOne.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+    private boolean init_mHideIdea() {
+        try {
+            mHideOne = mConnection.prepareStatement(SQL_HIDE_IDEAS);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mHideIdea");
             e.printStackTrace();
             disconnect();
             return false;
@@ -280,7 +320,7 @@ public class Database {
     private static final String SQL_DROP_TABLE_USER = "DROP TABLE IF EXISTS users_tbl";
 
     private static final String SQL_UPDATE_ONE_USER = 
-            "UPDATE users_tbl SET message = ? WHERE id = ?";
+            "UPDATE users_tbl SET name = ?, email = ? WHERE user_id = ?";
 
     private static final String SQL_SELECT_ALL_USER =
             "SELECT user_id, name, email, gender_identity, sexual_orientation FROM users_tbl";
@@ -289,6 +329,8 @@ public class Database {
             "SELECT * FROM users_tbl WHERE user_id = ?";
 
     private static final String SQL_DELETE_ONE_USER = "DELETE FROM users_tbl WHERE id = ?";
+
+    private static final String SQL_HIDE_USERS = "UPDATE users_tbl SET restricted = ? WHERE user_id = ?"; 
 
 
     // Prepared Statements
@@ -299,6 +341,7 @@ public class Database {
     private PreparedStatement mDeleteOneUser;
     private PreparedStatement mSelectAllUser;
     private PreparedStatement mSelectOneUser;
+    private PreparedStatement mHideOneUser;
 
     /**
      * Creates the `ideas_tbl` table in the database if it doesn't exist.
@@ -411,6 +454,31 @@ public class Database {
         return true;
     }
 
+    int HideOneUser(int id, int displayed) {
+        if (mHideOneUser == null) init_mHideUser();
+        int res = -1;
+        try {
+            System.out.println("Database operation: hideUser()");
+            mHideOneUser.setInt(1, displayed);  // Set displayed to 0 or 1
+            mHideOneUser.setInt(2, id); // 
+            res = mHideOneUser.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+    private boolean init_mHideUser() {
+        try {
+            mHideOneUser = mConnection.prepareStatement(SQL_HIDE_USERS);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mHideUser");
+            e.printStackTrace();
+            disconnect();
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Deletes a row from the `ideas_tbl` table by ID.
      */
@@ -509,6 +577,27 @@ public class Database {
             return false;
         }
         return true;
+    }
+
+
+    private boolean UserRestricted(int user_id) {
+        try (PreparedStatement stmt = mConnection.prepareStatement("SELECT restricted FROM users_tbl WHERE user_id = ?")) {
+            stmt.setInt(1, user_id);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                int restricted = rs.getInt("restricted");
+                if (restricted == 0){
+                    return true; //user is restricted, don't let them post
+                }
+                else{
+                    return false; //user has restricted value of 1; they are not restricted
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // If no such user or error, assume user is not restricted
     }
 
 
@@ -879,11 +968,68 @@ public class Database {
     int updateVote(int voteId, int updown) {
         if (mUpdateOneVote == null) init_mUpdateOneVote();
         int res = -1;
+        int postId = 0;
+        int currentVote = 0;
         try {
-            System.out.println("Database operation: updateVote()");
-            mUpdateOneVote.setInt(1, updown);
-            mUpdateOneVote.setInt(2, voteId);
-            res = mUpdateOneVote.executeUpdate();
+            try (PreparedStatement stmt = mConnection.prepareStatement("SELECT post_id FROM votes_tbl WHERE vote_id = ?")) {
+                stmt.setInt(1, voteId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    postId = rs.getInt("post_id");
+                }
+                rs.close();
+            }
+            try (PreparedStatement stmt = mConnection.prepareStatement("SELECT updown FROM votes_tbl WHERE vote_id = ?")) {
+                stmt.setInt(1, voteId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    currentVote = rs.getInt("updown");
+                }
+                rs.close();
+            }
+    
+            if (postId == -1 || currentVote == 0) {
+                System.out.println("Vote not found or invalid vote ID.");
+                return 0; 
+            }
+
+            if (updown == 1){
+                if (currentVote == -1){
+                    try (PreparedStatement stmt = mConnection.prepareStatement("UPDATE ideas_tbl SET votes = votes + 1 WHERE id = ?")) {
+                        stmt.setInt(1, postId);
+                        stmt.executeUpdate();
+                    }
+                }
+                else{
+                    System.out.println("Vote is already an upvote. No change");
+                    return 0;
+                }
+            }
+
+            if (updown == -1){
+                if (currentVote == 1){
+                    try (PreparedStatement stmt = mConnection.prepareStatement("UPDATE ideas_tbl SET votes = votes - 1 WHERE id = ?")) {
+                        stmt.setInt(1, postId);
+                        stmt.executeUpdate();
+                    }
+                }
+                else{
+                    System.out.println("Vote is already a downvote. No change");
+                    return 0;
+                }
+            }
+
+            String SQL_UPDATE_VOTE_VALUE = "UPDATE votes_tbl SET updown = ? WHERE vote_id = ?";
+            try (PreparedStatement stmt = mConnection.prepareStatement(SQL_UPDATE_VOTE_VALUE)) {
+                stmt.setInt(1, updown);
+                stmt.setInt(2, voteId);
+                res = stmt.executeUpdate();
+            }
+
+            // System.out.println("Database operation: updateVote()");
+            // mUpdateOneVote.setInt(1, updown);
+            // mUpdateOneVote.setInt(2, voteId);
+            // res = mUpdateOneVote.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -906,10 +1052,54 @@ public class Database {
     int deleteVote(int voteId) {
         if (mDeleteOneVote == null) init_mDeleteOneVote();
         int res = -1;
+        int postId = -1;
+        int voteValue = 0;
         try {
             System.out.println("Database operation: deleteVote()");
-            mDeleteOneVote.setInt(1, voteId);
-            res = mDeleteOneVote.executeUpdate();
+
+            try (PreparedStatement stmt = mConnection.prepareStatement("SELECT post_id FROM votes_tbl WHERE vote_id = ?")) {
+                stmt.setInt(1, voteId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    postId = rs.getInt("post_id");
+                }
+                rs.close();
+            }
+            try (PreparedStatement stmt = mConnection.prepareStatement("SELECT updown FROM votes_tbl WHERE vote_id = ?")) {
+                stmt.setInt(1, voteId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    voteValue = rs.getInt("updown");
+                }
+                rs.close();
+            }
+            if (postId == -1 || voteValue == 0) {
+                System.out.println("Vote not found or invalid vote ID.");
+                return 0; // No post found for this vote ID
+            }
+
+            if (voteValue == 1) {
+                // If the original vote was an upvote (+1), decrement the post's votes
+                String SQL_UPDATE_VOTE = "UPDATE ideas_tbl SET votes = votes - 2 WHERE id = ?";
+                try (PreparedStatement stmt = mConnection.prepareStatement(SQL_UPDATE_VOTE)) {
+                    stmt.setInt(1, postId);
+                    stmt.executeUpdate();
+                }
+            } else if (voteValue == -1) {
+                // If the original vote was a downvote (-1), increment the post's votes
+                String SQL_UPDATE_VOTE = "UPDATE ideas_tbl SET votes = votes + 2 WHERE id = ?";
+                try (PreparedStatement stmt = mConnection.prepareStatement(SQL_UPDATE_VOTE)) {
+                    stmt.setInt(1, postId);
+                    stmt.executeUpdate();
+                }
+            }
+            
+            String SQL_DELETE_VOTE = "DELETE FROM votes_tbl WHERE vote_id = ?";
+            try (PreparedStatement stmt = mConnection.prepareStatement(SQL_DELETE_VOTE)) {
+                stmt.setInt(1, voteId);
+                res = stmt.executeUpdate();
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -993,9 +1183,6 @@ public class Database {
         }
         return true;
     }
-
-
-
 
 
 
