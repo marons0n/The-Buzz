@@ -22,13 +22,13 @@ public class Database {
             "CREATE TABLE IF NOT EXISTS ideas_tbl (" + 
             " id SERIAL PRIMARY KEY," + 
             " subject VARCHAR(50) NOT NULL," +
-            " message VARCHAR(500) NOT NULL," +
+            " message VARCHAR(512) NOT NULL," +  // Limit message to 512 characters
             " likes INT DEFAULT 0 NOT NULL)";
     
     private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
     private static final String SQL_INSERT_ONE_IDEAS = 
-            "INSERT INTO ideas_tbl (subject, message, likes) VALUES (?, ?, 0)";
+            "INSERT INTO ideas_tbl (subject, message, likes) VALUES (?, ?, 0)";  // likes set to 0 on insert
 
     private static final String SQL_UPDATE_ONE_IDEAS = 
             "UPDATE ideas_tbl SET message = ? WHERE id = ?";
@@ -276,7 +276,7 @@ public class Database {
     private Database() {}
 
     static Database getDatabase(String dbUri) {
-        if (dbUri != null && dbUri.length() > 0) {
+        if (dbUri != null && !dbUri.isEmpty()) {  // Fixing the "length()" issue here
             Database db = new Database();
             try {
                 db.mConnection = DriverManager.getConnection(dbUri);
@@ -294,7 +294,7 @@ public class Database {
         Map<String, String> env = System.getenv();
         String dbUri = env.get("DATABASE_URI");
 
-        if (dbUri != null && dbUri.length() > 0) {
+        if (dbUri != null && !dbUri.isEmpty()) {
             return Database.getDatabase(dbUri);
         }
         return null;
