@@ -1,11 +1,28 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/IdeaItem.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
+Future<String?> getAuthToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+  print('Retrieved token: $token'); // Add this line for debugging
+  return token;
+}
 
 Future<List<IdeaItem>> fetchIdeas() async {
-  final response = await http.get(Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas'));
+  final token = await getAuthToken();
+  
+  if (token == null) {
+    throw Exception('Not authenticated');
+  }
+
+  final response = await http.get(
+    Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas'),
+    headers: {
+      'Authorization': 'Bearer $token',
+    },
+  );
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> responseData = jsonDecode(response.body);
@@ -17,18 +34,23 @@ Future<List<IdeaItem>> fetchIdeas() async {
       throw Exception('Invalid data format');
     }
   } else {
-    throw Exception('Failed to load ideas');
+    throw Exception('Failed to load ideas: ${response.body}');
   }
 }
+
 Future<bool> likeIdea(int ideaId) async {
+  final token = await getAuthToken();
+  
+  if (token == null) {
+    throw Exception('Not authenticated');
+  }
+
   final response = await http.put(
-    Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/$ideaId'),
+    Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/$ideaId/upvote'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
     },
-    body: jsonEncode(<String, int>{
-      'mLikes': 1,
-    }),
   );
 
   if (response.statusCode == 200) {
@@ -37,36 +59,44 @@ Future<bool> likeIdea(int ideaId) async {
     throw Exception('Failed to like idea');
   }
 }
+
 Future<bool> dislikeIdea(int ideaId, http.Client client) async {
-  final currentLikes = await getCurrentLikes(ideaId);
-
-  // Check if the idea has at least 1 like
-  if (currentLikes > 0) {
-    final response = await client.put(
-      Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/$ideaId'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, int>{
-        'mLikes': -1,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      throw Exception('Failed to like idea');
-    }
+  final token = await getAuthToken();
+  
+  if (token == null) {
+    throw Exception('Not authenticated');
   }
-  return false;
+
+  final response = await client.put(
+    Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/$ideaId/downvote'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    throw Exception('Failed to dislike idea');
+  }
 }
 
 Future<void> submitNewIdea(String idea) async {
+  final token = await getAuthToken();
+  
+  if (token == null) {
+    throw Exception('Not authenticated');
+  }
+
   final url = Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/'); 
   final response = await http.post(
     url,
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'mId': 90,'mLikes':0, 'mMessage': idea}),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode({'mMessage': idea}),
   );
 
   if (response.statusCode != 200) {
@@ -75,12 +105,23 @@ Future<void> submitNewIdea(String idea) async {
 }
 
 Future<int> getCurrentLikes(int ideaId) async {
-  final response = await http.get(Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/$ideaId'));
+  final token = await getAuthToken();
+  
+  if (token == null) {
+    throw Exception('Not authenticated');
+  }
+
+  final response = await http.get(
+    Uri.parse('https://team-untitled-23.dokku.cse.lehigh.edu/ideas/$ideaId'),
+    headers: {
+      'Authorization': 'Bearer $token',
+    },
+  );
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> responseData = jsonDecode(response.body);
     if (responseData['mStatus'] == 'ok' && responseData['mData'] is Map) {
-      return responseData['mData']['mLikes'] ?? 0; // Return the current likes, default to 0 if not found
+      return responseData['mData']['mLikes'] ?? 0;
     } else {
       throw Exception('Invalid data format');
     }
@@ -89,7 +130,6 @@ Future<int> getCurrentLikes(int ideaId) async {
   }
 }
 
-
 //below for testing
 typedef SubmitNewIdeaFunction = Future<void> Function(String idea);
-SubmitNewIdeaFunction submitNewIdeaFunction = submitNewIdea; 
+SubmitNewIdeaFunction submitNewIdeaFunction = submitNewIdea;
