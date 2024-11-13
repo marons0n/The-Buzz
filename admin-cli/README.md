@@ -8,6 +8,8 @@ The supabase password is: "the-buzz-123"
 To launch: DATABASE_URI="jdbc:postgresql://aws-0-us-west-1.pooler.supabase.com:5432/postgres?user=postgres.ixqgeaxiniwbvakpabpy&password=the-buzz-123" mvn exec:java
 The supabase password is: "the-buzz-123"
 
+DATABASE_URI="jdbc:postgresql://aws-0-us-west-1.pooler.supabase.com:6543/postgres?user=postgres.ixqgeaxiniwbvakpabpy&password=the-buzz-123" mvn exec:java
+
 >>>>>>> Stashed changes
 
 Idea Field: This admin CLI lets users manage a database table via commands. Users can create tables, add, update, query, and delete rows easily through the interface. It makes database tasks simpler with structured commands.
