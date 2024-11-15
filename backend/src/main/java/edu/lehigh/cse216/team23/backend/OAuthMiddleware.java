@@ -22,6 +22,14 @@ public class OAuthMiddleware implements Handler {
 
         token = token.substring("Bearer ".length());
 
+        // Log the token for debugging purposes
+        System.out.println("Received token: " + token);
+
+        // Check the length of the token
+        if (token.length() % 4 != 0) {
+            throw new IllegalArgumentException("Invalid token length");
+        }
+
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
                 .setAudience(Collections.singletonList(CLIENT_ID))
                 .build();
@@ -40,5 +48,8 @@ public class OAuthMiddleware implements Handler {
         ctx.attribute("userId", userId);
         ctx.attribute("email", email);
         ctx.attribute("name", name);
+
+        // Store userId in the Hashtable
+        App.userTable.put(userId, token);
     }
 }

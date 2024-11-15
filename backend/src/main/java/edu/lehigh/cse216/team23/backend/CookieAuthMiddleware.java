@@ -34,5 +34,8 @@ public class CookieAuthMiddleware implements Handler {
 
         // Store user information in the context for use in the endpoint
         ctx.attribute("userId", userId);
+
+        // Store userId in the Hashtable
+        App.userTable.put(userId, token);
     }
 }

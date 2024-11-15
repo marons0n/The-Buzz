@@ -280,33 +280,6 @@ public class Database {
         return true;
     }
 
-   /**
-    * Insert row into comment table in the database
-    *
-    * @param userId The user id of the comment
-    * @param postId The post id of the comment
-    * @param text The text of the comment
-    * @return The number of rows that were inserted
-    */
-    int insertComment(int userId, int postId, String text) {
-        if (mInsertComment == null) // not yet initialized, do lazy init
-            init_mInsertComment(); // lazy init
-        int count = 0;
-        try {
-            System.out.println("Database operation: insertComment(String, int)");
-            mInsertComment.setInt(1, userId);
-            mInsertComment.setInt(2, postId);
-            mInsertComment.setString(3, text);
-            count += mInsertComment.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return count;
-    }
-
-
-
-
    private PreparedStatement mUpdateOne;
    /** the SQL for mUpdateOne */
    private static final String SQL_UPDATE_ONE_IDEAS_TBL = "UPDATE ideas_tbl" +
