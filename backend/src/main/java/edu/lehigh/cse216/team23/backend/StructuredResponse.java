@@ -2,6 +2,10 @@ package edu.lehigh.cse216.team23.backend;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * StructuredResponse provides a standard format for the server to respond to
+ * clients.
+ */
 public class StructuredResponse {
     @JsonProperty("status")
     private String status;
