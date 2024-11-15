@@ -9,13 +9,9 @@ public class SimpleRequestUser {
     String familyName;
     String givenName;
 
-    public SimpleRequestUser(String userId, String email, String name, String pictureUrl, String locale, String familyName, String givenName) {
+    public SimpleRequestUser(String userId, String email, String name) {
         this.userId = userId;
         this.email = email;
         this.name = name;
-        this.pictureUrl = pictureUrl;
-        this.locale = locale;
-        this.familyName = familyName;
-        this.givenName = givenName;
     }
 }

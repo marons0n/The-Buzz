@@ -6,5 +6,5 @@ package edu.lehigh.cse216.team23.backend;
  * @param mVotes The likes being provided by the client.
  * @param mMessage The message being provided by the client.
  */
-public record SimpleRequest( int mVotes, String mMessage ) {}
+public record SimpleRequest( String mMessage ) {}
 

@@ -27,10 +27,13 @@ public class Database {
     * @param mVotes the number of votes on the idea (cannot be less than 0)
     * @param mMessage the content of the idea
     * */
-   public static record RowDataIdeas(int mId, int mVotes, String mMessage) {
+   public static record RowDataIdeas(int mId, int mVotes, String mMessage, String userId) {
    }
 
-   public static record RowDataComments(int mCommentId, int mUserId, int mPostId, String mText) {
+   public static record RowDataComments(int mCommentId, String mUserId, int mPostId, String mText) {
+   }
+
+   public static record RowDataUsers(String mUserId, String mEmail, String mName) {
    }
 
 
@@ -257,7 +260,7 @@ public class Database {
 //insert comment
    private PreparedStatement mInsertComment;
    /** the SQL for mInsertOne */
-   private static final String SQL_INSERT_ONE_COMMENT = "INSERT INTO comment (userid, postid, text) VALUES (?, ?, ?) RETURNING commentid";
+   private static final String SQL_INSERT_ONE_COMMENT = "INSERT INTO comments_tbl (user_id, post_id, message) VALUES (?, ?, ?) RETURNING comment_id";
 
     /**
     * safely performs mInsertOne = mConnection.prepareStatement("INSERT INTO
@@ -460,7 +463,7 @@ public class Database {
 
 //get all ideas
    private PreparedStatement mSelectAll;
-   private static final String SQL_SELECT_ALL_IDEAS_TBL = "SELECT id, votes, message" +
+   private static final String SQL_SELECT_ALL_IDEAS_TBL = "SELECT id, votes, message, user_id" +
            " FROM ideas_tbl;";
 
 
@@ -489,7 +492,8 @@ public class Database {
                int id = rs.getInt("id");
                int votes = rs.getInt("votes");
                String message = rs.getString("message");
-               RowDataIdeas data = new RowDataIdeas(id, votes, message);
+               String userId = rs.getString("user_id");
+               RowDataIdeas data = new RowDataIdeas(id, votes, message, userId);
                res.add(data);
            }
            rs.close();
@@ -500,10 +504,10 @@ public class Database {
        }
    }
 
-//get comments from id
+//get comments from 
     private PreparedStatement mSelectAllComments;
-    private static final String SQL_SELECT_ALL_COMMENTS = "SELECT commentid, userid, postid, text" +
-           " FROM comment WHERE postid = ?;";
+    private static final String SQL_SELECT_ALL_COMMENTS = "SELECT comment_id, user_id, post_id, message" +
+           " FROM comments_tbl WHERE post_id = ?;";
 
     private boolean init_mSelectAllComments() {
         try {
@@ -527,11 +531,50 @@ public class Database {
             mSelectAllComments.setInt(1, id);
             ResultSet rs = mSelectAllComments.executeQuery();
             while (rs.next()) {
-                int commentid = rs.getInt("commentid");
-                int userid = rs.getInt("userid");
-                int postid = rs.getInt("postid");
-                String text = rs.getString("text");
+                int commentid = rs.getInt("comment_id");
+                String userid = rs.getString("user_id");
+                int postid = rs.getInt("post_id");
+                String text = rs.getString("message");
                 RowDataComments data = new RowDataComments(commentid, userid, postid, text);
+                res.add(data);
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        
+    }
+
+    private PreparedStatement mSelectAllUsers;
+    private static final String SQL_SELECT_ALL_USERS = "SELECT user_id, email, name" +
+           " FROM users_tbl;";
+    private boolean init_mSelectAllUsers() {
+        try {
+            mSelectAllUsers = mConnection.prepareStatement(SQL_SELECT_ALL_USERS);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mSelectAllUsers");
+            System.err.println("Using SQL: " + SQL_SELECT_ALL_USERS);
+            e.printStackTrace();
+            this.disconnect(); // @TODO is disconnecting on exception what we want?
+            return false;
+        }
+        return true;
+    }
+
+    ArrayList<RowDataUsers> selectAllUsers() {
+        if (mSelectAllUsers == null)
+            init_mSelectAllUsers();
+        ArrayList<RowDataUsers> res = new ArrayList<RowDataUsers>();
+        try {
+            System.out.println("Database operation: selectAllUsers()");
+            ResultSet rs = mSelectAllUsers.executeQuery();
+            while (rs.next()) {
+                String userid = rs.getString("user_id");
+                String email = rs.getString("email");
+                String name = rs.getString("name");
+                RowDataUsers data = new RowDataUsers(userid, email, name);
                 res.add(data);
             }
             rs.close();
@@ -591,7 +634,8 @@ public class Database {
                int id = rs.getInt("id");
                int votes = rs.getInt("votes");
                String message = rs.getString("message");
-               data = new RowDataIdeas(id, votes, message);
+                String userId = rs.getString("user_id");
+               data = new RowDataIdeas(id, votes, message, userId);
            }
            rs.close(); // remember to close the result set
        } catch (SQLException e) {
@@ -630,7 +674,7 @@ public class Database {
    public int insertUser(String userId, String email, String name) {
         //check if user id already exists in database
         try {
-            PreparedStatement stmt = mConnection.prepareStatement("SELECT * FROM \"user\" WHERE userid = ?");
+            PreparedStatement stmt = mConnection.prepareStatement("SELECT * FROM users_tbl WHERE user_id = ?");
             stmt.setString(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -639,7 +683,7 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        String query = "INSERT INTO \"user\" (userid, email, name) VALUES (?, ?, ?)";
+        String query = "INSERT INTO users_tbl (user_id, email, name) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
             stmt.setString(1, userId);
             stmt.setString(2, email);
@@ -656,7 +700,7 @@ public class Database {
 
 
     public int insertRow(String userId, String message) {
-        String query = "INSERT INTO ideas_tbl (userid, message) VALUES (?, ?) RETURNING id";
+        String query = "INSERT INTO ideas_tbl (user_id, message) VALUES (?, ?) RETURNING id";
         try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
             stmt.setString(1, userId);
             stmt.setString(2, message);
@@ -670,10 +714,9 @@ public class Database {
         return -1; // Return -1 if the insertion fails
     }
 
-    public int insertVote(String userId, int postId, String type) {
-        String insertVoteQuery = "INSERT INTO vote (userId, postId, votetype) VALUES (?, ?, ?) RETURNING voteid";
+    public int insertVote(String userId, int postId, int updown) {
+        String insertVoteQuery = "INSERT INTO votes_tbl (user_id, post_id, updown) VALUES (?, ?, ?) RETURNING vote_id";
         String updateVotesQuery = "UPDATE ideas_tbl SET votes = votes + ? WHERE id = ?";
-        int voteChange = type.equals("upvote") ? 1 : -1;
 
         try {
             mConnection.setAutoCommit(false); // Start transaction
@@ -684,13 +727,13 @@ public class Database {
                 // Insert the vote
                 insertVoteStmt.setString(1, userId);
                 insertVoteStmt.setInt(2, postId);
-                insertVoteStmt.setString(3, type);
+                insertVoteStmt.setInt(3, updown);
                 ResultSet rs = insertVoteStmt.executeQuery();
                 if (rs.next()) {
                     int voteId = rs.getInt(1);
 
                     // Update the votes count in the ideas table
-                    updateVotesStmt.setInt(1, voteChange);
+                    updateVotesStmt.setInt(1, updown);
                     updateVotesStmt.setInt(2, postId);
                     updateVotesStmt.executeUpdate();
 
@@ -710,7 +753,7 @@ public class Database {
     }
 
     public int insertComment(String userId, int postId, String text) {
-        String insertCommentQuery = "INSERT INTO comment (userId, postId, text) VALUES (?, ?, ?) RETURNING commentid";
+        String insertCommentQuery = "INSERT INTO comments_tbl (user_id, post_id, message) VALUES (?, ?, ?) RETURNING comment_id";
 
         try {
             mConnection.setAutoCommit(false); // Start transaction
@@ -738,6 +781,23 @@ public class Database {
             e.printStackTrace();
         }
         return -1; // Return -1 if the insertion fails
+    }
+
+    //get user from google id
+    public RowDataUsers getUserByGoogleId(String userId) {
+        String query = "SELECT * FROM users_tbl WHERE user_id = ?";
+        try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
+            stmt.setString(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String email = rs.getString("email");
+                String name = rs.getString("name");
+                return new RowDataUsers(userId, email, name);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
 
