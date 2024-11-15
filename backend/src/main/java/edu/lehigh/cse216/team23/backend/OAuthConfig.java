@@ -45,13 +45,4 @@ public class OAuthConfig {
     public static String getRedirectUri() {
         return getEnvVar("REDIRECT_URI");
     }
-
-    /**
-     * Get the port
-     * 
-     * @return The port
-     */
-    public static String getPort() {
-        return getEnvVar("URI_PORT");
-    }
 }
