@@ -25,11 +25,6 @@ public class OAuthMiddleware implements Handler {
         // Log the token for debugging purposes
         System.out.println("Received token: " + token);
 
-        // Check the length of the token
-        if (token.length() % 4 != 0) {
-            throw new IllegalArgumentException("Invalid token length");
-        }
-
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
                 .setAudience(Collections.singletonList(CLIENT_ID))
                 .build();

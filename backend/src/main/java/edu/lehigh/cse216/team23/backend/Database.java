@@ -22,9 +22,9 @@ public class Database {
     * @param mId the id of the idea
     * @param mVotes the number of votes on the idea (cannot be less than 0)
     * @param mMessage the content of the idea
-    * @param userId the user id of the idea
+    * @param mUserId the user id of the idea
     * */
-   public static record RowDataIdeas(int mId, int mVotes, String mMessage, String userId) {
+   public static record RowDataIdeas(int mId, int mVotes, String mMessage, String mUserId) {
    }
 
    /**
@@ -32,9 +32,9 @@ public class Database {
     * @param mCommentId the id of the comment
     * @param mUserId the user id of the comment
     * @param mPostId the post id of the comment
-    * @param mText the content of the comment
+    * @param mMessage the content of the comment
     */
-   public static record RowDataComments(int mCommentId, String mUserId, int mPostId, String mText) {
+   public static record RowDataComments(int mCommentId, String mUserId, int mPostId, String mMessage) {
    }
 
     /**
