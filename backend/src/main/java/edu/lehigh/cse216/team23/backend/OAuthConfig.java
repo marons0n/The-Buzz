@@ -45,4 +45,8 @@ public class OAuthConfig {
     public static String getRedirectUri() {
         return getEnvVar("REDIRECT_URI");
     }
+
+    public static String getBaseUrl() {
+        return getEnvVar("BASE_URL");
+    }
 }
