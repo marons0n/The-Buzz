@@ -43,7 +43,7 @@ public class Database {
      * @param mEmail the email of the user
      * @param mName the name of the user
      */
-   public static record RowDataUsers(String mUserId, String mEmail, String mName) {
+   public static record RowDataUsers(String mUserId, String mName, String mEmail) {
    }
 
 
@@ -542,7 +542,7 @@ public class Database {
 
 //INSERT USER INTO DATABASE--------------------------------------------------------------------------------------------
     private PreparedStatement mInsertUser;
-    private static final String SQL_INSERT_USER = "SELECT * FROM users_tbl WHERE user_id = ?";
+    private static final String SQL_INSERT_USER = "INSERT INTO users_tbl (user_id, name, email) VALUES (?, ?, ?)";
 
     private boolean init_mInsertUser() {
         try {
@@ -565,15 +565,15 @@ public class Database {
      * @param name The name of the user
      * @return The number of rows that were inserted. -1 indicates an error.
      */
-    int insertUser(String userId, String email, String name) {
+    int insertUser(String userId, String name, String email) {
         if (mInsertUser == null) // not yet initialized, do lazy init
             init_mInsertUser(); // lazy init
         int res = -1;
         try {
-            System.out.println("Database operation: insertUser(String userId, String email, String name)");
+            System.out.println("Database operation: insertUser(String userId, String name, String email)");
             mInsertUser.setString(1, userId);
-            mInsertUser.setString(2, email);
-            mInsertUser.setString(3, name);
+            mInsertUser.setString(2, name);
+            mInsertUser.setString(3, email);
             res = mInsertUser.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
