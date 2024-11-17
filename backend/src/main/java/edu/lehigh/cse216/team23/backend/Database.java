@@ -581,6 +581,19 @@ public class Database {
         return res;
     }
 
+    //check if user email already exists in database
+    public boolean emailExists(String email) {
+        String query = "SELECT 1 FROM users_tbl WHERE email = ?";
+        try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 //GET USER BY GOOGLEID
     private PreparedStatement mSelectUserByGoogleId;
     private static final String SQL_SELECT_USER_BY_GOOGLEID = "SELECT * FROM users_tbl WHERE user_id = ?";
