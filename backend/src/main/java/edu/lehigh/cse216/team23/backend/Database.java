@@ -43,7 +43,7 @@ public class Database {
      * @param mEmail the email of the user
      * @param mName the name of the user
      */
-   public static record RowDataUsers(String mUserId, String mName, String mEmail) {
+   public static record RowDataUsers(String mUserId, String mName, String mEmail, String mGenderIdentity, String mSexualOrientation, String mBio) {
    }
 
 
@@ -528,7 +528,10 @@ public class Database {
                 String userid = rs.getString("user_id");
                 String email = rs.getString("email");
                 String name = rs.getString("name");
-                RowDataUsers data = new RowDataUsers(userid, email, name);
+                String bio = rs.getString("bio");
+                String sexualOrientation = rs.getString("sexual_orientation");
+                String genderIdentity = rs.getString("gender_identity");
+                RowDataUsers data = new RowDataUsers(userid, email, name, bio, sexualOrientation, genderIdentity);
                 res.add(data);
             }
             rs.close();
@@ -594,7 +597,102 @@ public class Database {
         return false;
     }
 
-//GET USER BY GOOGLEID
+//UPDATE USER BIO--------------------------------------------------------------------------------------------
+    private PreparedStatement mUpdateUserBio;
+    private static final String SQL_UPDATE_USER_BIO = "UPDATE users_tbl SET bio = ? WHERE user_id = ?";
+
+    private boolean init_mUpdateUserBio() {
+        try {
+            mUpdateUserBio = mConnection.prepareStatement(SQL_UPDATE_USER_BIO);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mUpdateUserBio");
+            System.err.println("Using SQL: " + SQL_UPDATE_USER_BIO);
+            e.printStackTrace();
+            this.disconnect(); // @TODO is disconnecting on exception what we want?
+            return false;
+        }
+        return true;
+    }
+
+    public int updateUserBio(String userId, String bio) {
+        if (mUpdateUserBio == null) // not yet initialized, do lazy init
+            init_mUpdateUserBio(); // lazy init
+        int res = -1;
+        try {
+            mUpdateUserBio.setString(1, bio);
+            mUpdateUserBio.setString(2, userId);
+            res = mUpdateUserBio.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+//UPDATE USER GENDER--------------------------------------------------------------------------------------------
+    private PreparedStatement mUpdateUserGender;
+    private static final String SQL_UPDATE_USER_GENDER
+           = "UPDATE users_tbl SET gender_identity = ? WHERE user_id = ?";
+
+    private boolean init_mUpdateUserGender() {
+        try {
+            mUpdateUserGender = mConnection.prepareStatement(SQL_UPDATE_USER_GENDER);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mUpdateUserGender");
+            System.err.println("Using SQL: " + SQL_UPDATE_USER_GENDER);
+            e.printStackTrace();
+            this.disconnect(); // @TODO is disconnecting on exception what we want?
+            return false;
+        }
+        return true;
+    }
+
+    public int updateUserGender(String userId, String gender) {
+        if (mUpdateUserGender == null) // not yet initialized, do lazy init
+            init_mUpdateUserGender(); // lazy init
+        int res = -1;
+        try {
+            mUpdateUserGender.setString(1, gender);
+            mUpdateUserGender.setString(2, userId);
+            res = mUpdateUserGender.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+//UPDATE USER SEXUAL ORIENTATION--------------------------------------------------------------------------------------------
+    private PreparedStatement mUpdateUserOrientation;
+    private static final String SQL_UPDATE_USER_ORIENTATION
+        = "UPDATE users_tbl SET sexual_orientation = ? WHERE user_id = ?";
+
+    private boolean init_mUpdateUserOrientation() {
+        try {
+            mUpdateUserOrientation = mConnection.prepareStatement(SQL_UPDATE_USER_ORIENTATION);
+        } catch (SQLException e) {
+            System.err.println("Error creating prepared statement: mUpdateUserGender");
+            System.err.println("Using SQL: " + SQL_UPDATE_USER_ORIENTATION);
+            e.printStackTrace();
+            this.disconnect(); // @TODO is disconnecting on exception what we want?
+            return false;
+        }
+        return true;
+    }
+
+    public int updateUserOrientation(String userId, String orientation) {
+        if (mUpdateUserOrientation == null) // not yet initialized, do lazy init
+            init_mUpdateUserOrientation(); // lazy init
+        int res = -1;
+        try {
+            mUpdateUserOrientation.setString(1, orientation);
+            mUpdateUserOrientation.setString(2, userId);
+            res = mUpdateUserOrientation.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+//GET USER BY GOOGLEID--------------------------------------------------------------------------------------------
     private PreparedStatement mSelectUserByGoogleId;
     private static final String SQL_SELECT_USER_BY_GOOGLEID = "SELECT * FROM users_tbl WHERE user_id = ?";
 
@@ -629,7 +727,10 @@ public class Database {
                 String userid = rs.getString("user_id");
                 String email = rs.getString("email");
                 String name = rs.getString("name");
-                data = new RowDataUsers(userid, email, name);
+                String bio = rs.getString("bio");
+                String sexualOrientation = rs.getString("sexual_orientation");
+                String genderIdentity = rs.getString("gender_identity");
+                data = new RowDataUsers(userid, email, name, bio, sexualOrientation, genderIdentity);
             }
             rs.close(); // remember to close the result set
         } catch (SQLException e) {
