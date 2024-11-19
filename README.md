@@ -6,5 +6,3 @@ This is a team repository.  It is intended for use during phase 1 and beyond.
 - Team Number: 23
 - Team Name: team_23
 - Bitbucket Repository: https://bitbucket.org/sml3/cse216_fa24_team_23
-
-[Backend JavaDoc](backend/javadoc/index.html)
