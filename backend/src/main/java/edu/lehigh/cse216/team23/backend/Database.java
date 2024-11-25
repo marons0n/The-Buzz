@@ -24,8 +24,9 @@ public class Database {
     * @param mMessage the content of the idea
     * @param mUserId the user id of the idea
     * */
-   public static record RowDataIdeas(int mId, int mVotes, String mMessage, String mUserId) {
-   }
+    // Updated RowDataIdeas to include file_link
+    public static record RowDataIdeas(int mId, int mVotes, String mMessage, String mUserId, String mFileLink) {
+    }
 
    /**
     * Represents a row in the comments_tbl with comment_id, user_id, post_id, and message content.
@@ -178,7 +179,8 @@ public class Database {
 
 //INSERT ROW INTO DATABASE--------------------------------------------------------------------------------------------
     private PreparedStatement mInsertOne;
-    private static final String SQL_INSERT_ONE_IDEAS_TBL = "INSERT INTO ideas_tbl (user_id, message) VALUES (?, ?) RETURNING id";
+    private static final String SQL_INSERT_ONE_IDEAS_TBL = "INSERT INTO ideas_tbl (user_id, message, file_link) VALUES (?, ?, ?) RETURNING id";
+
 
     private boolean init_mInsertOne() {
         try {
@@ -187,35 +189,38 @@ public class Database {
             System.err.println("Error creating prepared statement: mInsertOne");
             System.err.println("Using SQL: " + SQL_INSERT_ONE_IDEAS_TBL);
             e.printStackTrace();
-            this.disconnect(); // @TODO is disconnecting on exception what we want?
+            this.disconnect(); // Disconnect on failure
             return false;
         }
         return true;
     }
+    
     /**
-     * Insert a new row into the ideas_tbl table
-     *
-     * @param userId  The user id of the idea
-     * @param message The content of the idea
-     * @return The id of the new row, or -1 if the insertion fails
-     */
-    int insertRow(String userId, String message) {
-        if (mInsertOne == null) // not yet initialized, do lazy init
-            init_mInsertOne(); // lazy init
-        int res = -1;
-        try {
-            System.out.println("Database operation: insertOne(String userId, String message)");
-            mInsertOne.setString(1, userId);
-            mInsertOne.setString(2, message);
-            ResultSet rs = mInsertOne.executeQuery();
-            if (rs.next()) {
-                res = rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+ * Insert a new row into the ideas_tbl table
+ *
+ * @param userId   The user ID of the idea
+ * @param message  The content of the idea
+ * @param fileLink The file link for the idea
+ * @return The id of the new row, or -1 if the insertion fails
+ */
+int insertRow(String userId, String message, String fileLink) {
+    if (mInsertOne == null) // not yet initialized, do lazy init
+        init_mInsertOne(); // lazy init
+    int res = -1;
+    try {
+        System.out.println("Database operation: insertRow(String userId, String message, String fileLink)");
+        mInsertOne.setString(1, userId);
+        mInsertOne.setString(2, message);
+        mInsertOne.setString(3, fileLink); // Set the file link
+        ResultSet rs = mInsertOne.executeQuery();
+        if (rs.next()) {
+            res = rs.getInt(1);
         }
-        return res;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return res;
+}
 
 //SELECT ONE ROW FROM DATABASE--------------------------------------------------------------------------------------------
     private PreparedStatement mSelectOne;
@@ -255,8 +260,9 @@ public class Database {
                 int id = rs.getInt("id");
                 int votes = rs.getInt("votes");
                 String message = rs.getString("message");
-                 String userId = rs.getString("user_id");
-                data = new RowDataIdeas(id, votes, message, userId);
+                String userId = rs.getString("user_id");
+                String fileLink = rs.getString("file_link"); // Retrieve file link
+                data = new RowDataIdeas(id, votes, message, userId, fileLink);
             }
             rs.close(); // remember to close the result set
         } catch (SQLException e) {
@@ -264,6 +270,7 @@ public class Database {
         }
         return data;
     }
+    
 
 
 //UPDATE ONE ROW IN DATABASE--------------------------------------------------------------------------------------------
@@ -358,8 +365,8 @@ public class Database {
 
 //GET ALL IDEAS FROM DATABASE--------------------------------------------------------------------------------------------
    private PreparedStatement mSelectAll;
-   private static final String SQL_SELECT_ALL_IDEAS_TBL = "SELECT id, votes, message, user_id" +
-           " FROM ideas_tbl;";
+   private static final String SQL_SELECT_ALL_IDEAS_TBL = "SELECT id, votes, message, user_id, file_link FROM ideas_tbl;";
+
 
    private boolean init_mSelectAll() {
        try {
@@ -379,28 +386,30 @@ public class Database {
      *
      * @return The data for all rows in the database
      */
-   ArrayList<RowDataIdeas> selectAll() {
-       if (mSelectAll == null)
-           init_mSelectAll();
-       ArrayList<RowDataIdeas> res = new ArrayList<RowDataIdeas>();
-       try {
-           System.out.println("Database operation: selectAll()");
-           ResultSet rs = mSelectAll.executeQuery();
-           while (rs.next()) {
-               int id = rs.getInt("id");
-               int votes = rs.getInt("votes");
-               String message = rs.getString("message");
-               String userId = rs.getString("user_id");
-               RowDataIdeas data = new RowDataIdeas(id, votes, message, userId);
-               res.add(data);
-           }
-           rs.close();
-           return res;
-       } catch (SQLException e) {
-           e.printStackTrace();
-           return null;
-       }
-   }
+    ArrayList<RowDataIdeas> selectAll() {
+        if (mSelectAll == null)
+            init_mSelectAll();
+        ArrayList<RowDataIdeas> res = new ArrayList<>();
+        try {
+            System.out.println("Database operation: selectAll()");
+            ResultSet rs = mSelectAll.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int votes = rs.getInt("votes");
+                String message = rs.getString("message");
+                String userId = rs.getString("user_id");
+                String fileLink = rs.getString("file_link"); // Retrieve file link
+                RowDataIdeas data = new RowDataIdeas(id, votes, message, userId, fileLink);
+                res.add(data);
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
 
 //GET ALL COMMENTS FROM POST FROM DATABASE--------------------------------------------------------------------------------------------
     private PreparedStatement mSelectAllComments;
@@ -745,6 +754,7 @@ public class Database {
     * Disconnect from the database
     *
     * @return returns true if disconnect was successful, and false if not
+    * make sure to get the information all completed before the complition of the assigment.
     */
    boolean disconnect() {
        if (mConnection != null) {
