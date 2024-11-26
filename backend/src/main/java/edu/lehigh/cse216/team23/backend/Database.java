@@ -717,6 +717,41 @@ int insertRow(String userId, String message, String fileLink) {
         }
         return true;
     }
+//-----FILE
+
+private PreparedStatement mInsertIdeaWithFileLink;
+private static final String SQL_INSERT_IDEA_WITH_FILE_LINK =
+    "INSERT INTO ideas_tbl (user_id, message, file_link) VALUES (?, ?, ?) RETURNING id";
+
+private boolean initInsertIdeaWithFileLink() {
+    try {
+        mInsertIdeaWithFileLink = mConnection.prepareStatement(SQL_INSERT_IDEA_WITH_FILE_LINK);
+    } catch (SQLException e) {
+        System.err.println("Error preparing statement for inserting idea with file link.");
+        e.printStackTrace();
+        return false;
+    }
+    return true;
+}
+
+public int insertIdeaWithFileLink(String userId, String message, String fileLink) {
+    if (mInsertIdeaWithFileLink == null) initInsertIdeaWithFileLink();
+    int res = -1;
+    try {
+        mInsertIdeaWithFileLink.setString(1, userId);
+        mInsertIdeaWithFileLink.setString(2, message);
+        mInsertIdeaWithFileLink.setString(3, fileLink);
+        ResultSet rs = mInsertIdeaWithFileLink.executeQuery();
+        if (rs.next()) {
+            res = rs.getInt(1);
+        }
+        rs.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return res;
+}
+
 
     /**
      * Get a user by their google id
