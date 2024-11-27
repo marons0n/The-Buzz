@@ -1,90 +1,50 @@
-// package edu.lehigh.cse216.team23.admin;
+package edu.lehigh.cse216.team23.admin;
 
-// import java.io.BufferedReader;
-// import java.io.ByteArrayInputStream;
-// import java.io.IOException;
-// import java.io.InputStreamReader;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
-// import org.junit.Test;
-// import static org.junit.Assert.*;
+public class AppTest {
+    private MockDatabase mockDb;
+    private ByteArrayOutputStream outContent;
 
-// /**
-//  * Unit test for the App class.
-//  */
-// public class AppTest {
+    @Before
+    public void setUp() {
+        mockDb = new MockDatabase();
+        outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+    }
 
-//     /**
-//      * Test case to check if the App runs successfully.
-//      */
-//     @Test
-//     public void testApp() {
-//         assertTrue(true);  // A basic test case, replace with meaningful logic as needed.
-//     }
+    @Test
+    public void testShowAllIdeas() {
+        App.showAllIdeas(mockDb);
+        String expectedOutput = "All ideas:";
+        assertTrue(outContent.toString().contains(expectedOutput));
+    }
 
-//     /**
-//      * Tests an input of 'T', which should return 'T' when prompted.
-//      */
-//     @Test
-//     public void testPromptValidInput() throws IOException {
-//         String input = "T\n";
-//         InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(input.getBytes()));
-//         BufferedReader reader = new BufferedReader(isr);
+    @Test
+    public void testInsertNewIdea() {
+        String input = "Test idea\n1\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        App.insertNewIdea(mockDb);
+        String expectedOutput = "Idea inserted successfully.";
+        assertTrue(outContent.toString().contains(expectedOutput));
+    }
 
-//         char result = App.prompt(reader);
-//         assertEquals('T', result);
-//     }
+    @Test
+    public void testFindAllUsers() {
+        App.findAllUsers(mockDb);
+        String expectedOutput = "All users:";
+        assertTrue(outContent.toString().contains(expectedOutput));
+    }
 
-//     /**
-//      * Tests an invalid input (e.g. 'X'), and ensures it keeps prompting until a valid input is given.
-//      */
-//     @Test
-//     public void testPromptInvalidInput() throws IOException {
-//         String input = "X\nT\n";  // Invalid input followed by valid input
-//         InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(input.getBytes()));
-//         BufferedReader reader = new BufferedReader(isr);
-
-//         char result = App.prompt(reader);
-//         assertEquals('T', result);
-//     }
-
-//     /**
-//      * Tests the menu option '?' which should show the menu.
-//      */
-//     @Test
-//     public void testPromptHelpMenu() throws IOException {
-//         String input = "?\n";
-//         InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(input.getBytes()));
-//         BufferedReader reader = new BufferedReader(isr);
-
-//         char result = App.prompt(reader);
-//         assertEquals('?', result);
-//     }
-
-//     /**
-//      * Test for handling edge cases like an empty input.
-//      */
-//     @Test
-//     public void testPromptEmptyInput() throws IOException {
-//         String input = "\nT\n";  // Empty input first, then valid input
-//         InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(input.getBytes()));
-//         BufferedReader reader = new BufferedReader(isr);
-
-//         char result = App.prompt(reader);
-//         assertEquals('T', result);
-//     }
-
-//     /**
-//      * Test for message length restriction (shouldn't allow more than 512 characters).
-//      */
-//     @Test
-//     public void testMessageLengthLimit() throws IOException {
-//         // Create a string with 513 characters (exceeding the limit)
-//         String input = "A".repeat(513) + "\n";
-//         InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(input.getBytes()));
-//         BufferedReader reader = new BufferedReader(isr);
-
-//         // Ensure that the string length doesn't exceed 512
-//         String result = App.getString(reader, "Enter the message [limit 512 characters]");
-//         assertTrue(result.length() <= 512);
-//     }
-// }
+    @Test
+    public void testQueryAllComments() {
+        App.queryAllComments(mockDb);
+        String expectedOutput = "Comment ID:";
+        assertTrue(outContent.toString().contains(expectedOutput));
+    }
+}

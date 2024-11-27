@@ -14,7 +14,7 @@ import java.util.Map;
 public class Database {
 
     public static record RowData(int mId, String mMessage, int mVotes, int userId, int displayed) {}
-    public static record UserRowData(int uId, String uName, String uEmail, String uGender_identity,String uSexual_orientation) {}
+    public static record UserRowData(String uId, String uName, String uEmail, String uGender_identity,String uSexual_orientation, int uRestricted) {}
     public static record CommentRowData(int commentId, int userId, int postId, String message) {}
     public static record VoteRowData(int voteId, int userId, int postId, int updown) {}
 
@@ -37,7 +37,9 @@ public class Database {
             "INSERT INTO ideas_tbl (message, votes, user_id, displayed) VALUES (?, 0, ?, 1)";
 
     private static final String SQL_UPDATE_ONE_IDEAS = 
-            "UPDATE ideas_tbl SET message = ? WHERE id = ?";
+            "UPDATE ideas_tbl SET message = ?, displayed = ? WHERE id = ?";
+
+    
 
     private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
@@ -149,13 +151,15 @@ public class Database {
     /**
      * Updates a row in the `ideas_tbl` table by ID.
      */
-    int updateOne(int id, String message) {
+    int updateOne(int id, String message, int visible) {
         if (mUpdateOne == null) init_mUpdateOne();
         int res = -1;
         try {
             System.out.println("Database operation: updateOne()");
             mUpdateOne.setString(1, message);
-            mUpdateOne.setInt(2, id);
+            mUpdateOne.setInt(2, visible);
+            mUpdateOne.setInt(3, id);
+            
             res = mUpdateOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -312,7 +316,8 @@ public class Database {
         " name VARCHAR(50) NOT NULL," +
         " email VARCHAR(50) NOT NULL UNIQUE," +
         " gender_identity VARCHAR(50)," +
-        " sexual_orientation VARCHAR(50))";
+        " sexual_orientation VARCHAR(50)" +
+        " restricted VARCHAR(50))";
 
     private static final String SQL_INSERT_ONE_USER =
             "INSERT INTO users_tbl (name, email, gender_identity, sexual_orientation) VALUES (?, ?, ?, ?)";
@@ -320,7 +325,7 @@ public class Database {
     private static final String SQL_DROP_TABLE_USER = "DROP TABLE IF EXISTS users_tbl";
 
     private static final String SQL_UPDATE_ONE_USER = 
-            "UPDATE users_tbl SET name = ?, email = ? WHERE user_id = ?";
+            "UPDATE users_tbl SET name = ?, email = ? , restricted = ? WHERE user_id = ?";
 
     private static final String SQL_SELECT_ALL_USER =
             "SELECT user_id, name, email, gender_identity, sexual_orientation FROM users_tbl";
@@ -427,14 +432,15 @@ public class Database {
     /**
      * Updates a row in the `ideas_tbl` table by ID.
      */
-    int updateOneUser(int id, String name, String email) {
+    int updateOneUser(String id, String name, String email, int restricted) {
         if (mUpdateOneUser == null) init_mUpdateOneUser();
         int res = -1;
         try {
             System.out.println("Database operation: updateOneUser()");
             mUpdateOneUser.setString(1, name);
             mUpdateOneUser.setString(2, email);
-            mUpdateOneUser.setInt(3, id);
+            mUpdateOneUser.setInt(3, restricted);
+            mUpdateOneUser.setString(4, id);
             res = mUpdateOneUser.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -517,12 +523,13 @@ public class Database {
             System.out.println("Database operation: selectAllUser()");
             ResultSet rs = mSelectAllUser.executeQuery();
             while (rs.next()) {
-                int userId = rs.getInt("uId");
+                String userId = rs.getString("uId");
                 String name = rs.getString("uName");
                 String email = rs.getString("uEmail");
                 String gender = rs.getString("uGender_identity");
                 String orientation = rs.getString("uSexual_orientation");
-                res.add(new UserRowData(userId, name, email, gender, orientation));
+                int restricted = rs.getInt("restricted");
+                res.add(new UserRowData(userId, name, email, gender, orientation, restricted));
             }
             rs.close();
         } catch (SQLException e) {
@@ -546,19 +553,21 @@ public class Database {
     /**
      * Selects a single row from the `ideas_tbl` table by ID.
      */
-    UserRowData selectOneUser(int id) {
+    UserRowData selectOneUser(String id) {
+        System.out.println(id);
         if (mSelectOneUser == null) init_mSelectOneUser();
         UserRowData data = null;
         try {
             System.out.println("Database operation: selectOneUser()");
-            mSelectOneUser.setInt(1, id);
+            mSelectOneUser.setString(1, id);
             ResultSet rs = mSelectOneUser.executeQuery();
             if (rs.next()) {
                 String name = rs.getString("name");
                 String email = rs.getString("email");
                 String gender = rs.getString("gender_identity");
                 String orientation = rs.getString("sexual_orientation");
-                data = new UserRowData(id, name, email, gender, orientation);
+                int restricted = rs.getInt("restricted");
+                data = new UserRowData(id, name, email, gender, orientation, restricted);
             }
             rs.close();
         } catch (SQLException e) {
@@ -1231,4 +1240,18 @@ public class Database {
         }
         return null;
     }
+    public boolean userExists(int userId) {
+    String query = "SELECT COUNT(*) FROM users_tbl WHERE user_id = ?";
+    try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
+        stmt.setInt(1, userId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
 }
+}
+
