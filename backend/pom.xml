@@ -7,74 +7,86 @@
   <version>1.0-SNAPSHOT</version>
   <name>backend</name>
   <url>http://maven.apache.org</url>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>16</maven.compiler.source>
     <maven.compiler.target>16</maven.compiler.target>
   </properties>
+
   <build>
     <plugins>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>1.6.0</version>
-            <configuration>
-                <mainClass>edu.lehigh.cse216.team23.backend.App</mainClass>
-            </configuration>
-        </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <configuration>
+          <mainClass>edu.lehigh.cse216.team23.backend.App</mainClass>
+        </configuration>
+      </plugin>
 
-        <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>single</goal>
-                    </goals>
-                </execution>
-            </executions>
-            <configuration>
-                <descriptorRefs>
-                    <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
-                <archive>
-                    <manifest>
-                        <mainClass>edu.lehigh.cse216.team23.backend.App</mainClass>
-                    </manifest>
-                </archive>
-            </configuration>
-        </plugin>
-        
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>edu.lehigh.cse216.team23.backend.App</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
   <dependencies>
+    <!-- Testing dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Javalin framework -->
     <dependency>
       <groupId>io.javalin</groupId>
       <artifactId>javalin</artifactId>
       <version>6.3.0</version>
     </dependency>
+
+    <!-- Logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>2.0.16</version>
     </dependency>
+
+    <!-- JSON handling -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>2.11.0</version>
     </dependency>
+
+    <!-- PostgreSQL database driver -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>42.7.3</version>
     </dependency>
-    
+
+    <!-- Auth0 and JWT -->
     <dependency>
       <groupId>com.auth0</groupId>
       <artifactId>java-jwt</artifactId>
@@ -84,96 +96,45 @@
       <groupId>com.auth0</groupId>
       <artifactId>auth0</artifactId>
       <version>1.25.0</version>
-   </dependency>
-   <dependency>
+    </dependency>
+    <dependency>
       <groupId>com.auth0</groupId>
       <artifactId>jwks-rsa</artifactId>
       <version>0.11.0</version>
     </dependency>
-    <!-- Other dependencies -->
 
     <!-- Google API Client Library -->
     <dependency>
       <groupId>com.google.api-client</groupId>
       <artifactId>google-api-client</artifactId>
-      <version>1.32.1</version>
-  </dependency>
-
-  <dependency>
+      <version>1.34.0</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.oauth-client</groupId>
       <artifactId>google-oauth-client-jetty</artifactId>
-      <version>1.32.1</version>
-  </dependency>
-
-  <dependency>
+      <version>1.34.0</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.http-client</groupId>
-      <artifactId>google-http-client-jackson2</artifactId>
-      <version>1.39.2</version>
-  </dependency>
+      <artifactId>google-http-client-gson</artifactId>
+      <version>1.41.8</version>
+    </dependency>
 
-<!-- Add your existing dependencies here -->
-
-<dependency>
-
-  <groupId>com.google.api-client</groupId>
-
-  <artifactId>google-api-client</artifactId>
-
-  <version>1.32.1</version>
-
-</dependency>
-
-<dependency>
-
-  <groupId>com.google.oauth-client</groupId>
-
-  <artifactId>google-oauth-client-jetty</artifactId>
-
-  <version>1.32.1</version>
-
-</dependency>
-<!-- Other dependencies -->
-
-    <!-- Jackson Databind -->
+    <!-- Jackson for JSON processing -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.3</version>
-  </dependency>
-
-  <!-- Jackson Core -->
-  <dependency>
+      <version>2.15.2</version>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.12.3</version>
-  </dependency>
-
-  <!-- Jackson Annotations -->
-  <dependency>
+      <version>2.15.2</version>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.12.3</version>
-  </dependency>
-
-  <!-- Google API Client Library -->
-  <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>google-api-client</artifactId>
-      <version>1.32.1</version>
-  </dependency>
-
-  <dependency>
-      <groupId>com.google.oauth-client</groupId>
-      <artifactId>google-oauth-client-jetty</artifactId>
-      <version>1.32.1</version>
-  </dependency>
-
-  <dependency>
-      <groupId>com.google.http-client</groupId>
-      <artifactId>google-http-client-gson</artifactId>
-      <version>1.39.2</version>
-  </dependency>
-
-
+      <version>2.15.2</version>
+    </dependency>
   </dependencies>
 </project>
