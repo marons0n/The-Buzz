@@ -1,108 +1,147 @@
 package edu.lehigh.cse216.team23.backend;
 
-import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
+import edu.lehigh.cse216.team23.backend.FileUploadService;
 import io.javalin.Javalin;
-import io.javalin.testtools.JavalinTest;
+import io.javalin.http.staticfiles.Location;
+import io.javalin.http.staticfiles.StaticFileConfig;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.UUID;
+import java.util.Scanner;
 
-public class AppTest {
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.services.drive.Drive;
+import com.google.gson.Gson;
 
-    private static Database mockDatabase;
-    private static Hashtable<String, String> mockSessionCache;
+public class App {
 
-    @BeforeAll
-    static void setup() {
-        // Mock the database and session cache
-        mockDatabase = mock(Database.class);
-        mockSessionCache = new Hashtable<>();
+    // Hashtable to store sessionKey and userId
+    public static Hashtable<String, String> userTable = new Hashtable<>();
+
+    /** Default constructor for app, leave it empty */
+    public App() {}
+
+    /** If no port is passed in as an environment variable, it will be set to 8080 */
+    public static final int DEFAULT_PORT_WEBSERVER = 8080;
+
+    /**
+    * Safely gets integer value from named env var if it exists, otherwise returns default
+    * 
+    * @envar      The name of the environment variable to get.
+    * @defaultVal The integer value to use as the default if envar isn't found
+    * 
+    * @returns The best answer we could come up with for a value for envar
+    */
+    static int getIntFromEnv(String envar, int defaultVal) {
+        if (envar == null || envar.length() == 0 || System.getenv(envar.trim()) == null) return defaultVal;
+        try (Scanner sc = new Scanner(System.getenv(envar.trim()))) {
+            if (sc.hasNextInt())
+                return sc.nextInt();
+            else
+                System.err.printf("ERROR: Could not read %s from environment, using default of %d%n", envar, defaultVal);
+        }
+        return defaultVal;
     }
 
-    @Test
-    void testFileUploadAndRetrieval() {
-        Javalin app = Javalin.create(config -> config.defaultContentType = "application/json");
+    /**
+     * A simple webserver that connects to and uses a database.
+     * Uses default port; customizes the logger.
+     * 
+     * Reads arguments from the environment and then uses those arguments to connect to the database.
+     * Either DATABASE_URI should be set, or the values of POSTGRES_{IP, PORT, USER, PASS, DBNAME}.
+     * @param args is an array that the user passes on the command line
+     */
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
 
-        // Mock database behavior for file upload
-        when(mockDatabase.insertIdeaWithFileLink(anyString(), anyString(), anyString()))
-                .thenReturn(1); // Simulate successful insertion with ID = 1
+        // Set up Google Drive API
+        Drive driveService = FileUploadService.getDriveService();
+        
+        if (driveService == null) {
+            System.err.println("Failed to initialize Google Drive service.");
+            return;
+        }
 
-        app.post("/upload", ctx -> {
-            String userId = ctx.formParam("userId");
-            String message = ctx.formParam("message");
-            String fileLink = ctx.formParam("fileLink");
+        // Initialize FileUploadService with the Drive service
+        FileUploadService fileUploadService = new FileUploadService(driveService);
 
-            int newId = mockDatabase.insertIdeaWithFileLink(userId, message, fileLink);
-            if (newId == -1) {
-                ctx.status(500).json(new StructuredResponse("error", "File upload failed", null));
-            } else {
-                ctx.status(200).json(new StructuredResponse("ok", "File uploaded", newId));
+        /* holds connection to the database created from environment variables */
+        Database db = Database.getDatabase();
+
+        Javalin app = Javalin.create(config -> {
+            config.enableDevLogging();
+        });
+
+        if ("True".equalsIgnoreCase(System.getenv("CORS_ENABLED"))) {
+            // print to console that I am enabling CORS
+            System.out.println("Enabling CORS");
+            // Enable CORS for the entire app
+            final String acceptCrossOriginRequestsFrom = "http://localhost:3000"; 
+            final String acceptedCrossOriginRoutes = "GET, POST, PUT, DELETE, OPTIONS";
+            final String supportedRequestHeaders = "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin";
+            // print to console the origin
+            System.out.println("Origin: " + acceptCrossOriginRequestsFrom);
+            enableCORS(app, acceptCrossOriginRequestsFrom, acceptedCrossOriginRoutes, supportedRequestHeaders);
+        }
+
+        // gson provides us a way to turn JSON into objects, and objects into JSON.
+        final Gson gson = new Gson();
+
+        // Configure routes
+        Routes.configureRoutes(app, driveService, db, gson, fileUploadService);
+
+        /**
+         * Middleware to check for OAuth token
+         *
+         * This middleware checks for the presence of an OAuth token in the Authorization header.
+         */
+        app.before("/api/*", new OAuthMiddleware());
+        app.before("/users/*", new OAuthMiddleware());
+        app.before("/ideas", new OAuthMiddleware());
+        app.before("/ideas/{id}", new OAuthMiddleware());
+        app.before("/ideas/*", new OAuthMiddleware());
+
+        // don't forget: nothing happens until we `start` the server
+        app.start(getIntFromEnv("PORT", DEFAULT_PORT_WEBSERVER));
+    }
+
+    /**
+     * Set up CORS headers for the OPTIONS verb, and for every response that the
+     * server sends.  This only needs to be called once.
+     * 
+     * @param app the Javalin app on which to enable cors; create() already called on it
+     * @param origin The server that is allowed to send requests to this server
+     * @param methods The allowed HTTP verbs from the above origin
+     * @param headers The headers that can be sent with a request from the above
+     *                origin
+     */
+    private static void enableCORS(Javalin app, String origin, String methods, String headers) {
+        System.out.println("!!! CAUTION: ~~~ ENABLING CORS ~~~ !!!");
+
+        app.options("/*", ctx -> {
+            String accessControlRequestHeaders = ctx.req.getHeader("Access-Control-Request-Headers");
+            if (accessControlRequestHeaders != null) {
+                ctx.res.setHeader("Access-Control-Allow-Headers", accessControlRequestHeaders);
             }
-        });
 
-        JavalinTest.test(app, (server, client) -> {
-            var response = client.post("/upload")
-                    .body("{\"userId\": \"user123\", \"message\": \"Test message\", \"fileLink\": \"http://example.com/file\"}")
-                    .asString();
-
-            assertEquals(200, response.getStatus());
-            assertTrue(response.getBody().contains("File uploaded"));
-        });
-    }
-
-    @Test
-    void testSessionIdCaching() {
-        String sessionId = "session123";
-        String userId = "user123";
-
-        // Simulate caching the session ID
-        mockSessionCache.put(sessionId, userId);
-
-        // Retrieve and verify session ID
-        assertEquals(userId, mockSessionCache.get(sessionId));
-
-        // Simulate logout and removal from cache
-        mockSessionCache.remove(sessionId);
-        assertNull(mockSessionCache.get(sessionId));
-    }
-
-    @Test
-    void testFileDownloadWithCache() {
-        Javalin app = Javalin.create(config -> config.defaultContentType = "application/json");
-        Hashtable<String, String> fileCache = new Hashtable<>();
-
-        // Mock database behavior for file retrieval
-        when(mockDatabase.selectOne(anyInt())).thenReturn(
-                new Database.RowDataIdeas(1, 0, "Test message", "http://example.com/file"));
-
-        app.get("/files/:id", ctx -> {
-            int fileId = Integer.parseInt(ctx.pathParam("id"));
-            if (fileCache.containsKey(String.valueOf(fileId))) {
-                ctx.status(200).json(new StructuredResponse("ok", "File retrieved from cache",
-                        fileCache.get(String.valueOf(fileId))));
-            } else {
-                Database.RowDataIdeas data = mockDatabase.selectOne(fileId);
-                if (data != null) {
-                    fileCache.put(String.valueOf(fileId), data.mMessage());
-                    ctx.status(200)
-                            .json(new StructuredResponse("ok", "File retrieved from DB and cached", data.mMessage()));
-                } else {
-                    ctx.status(404).json(new StructuredResponse("error", "File not found", null));
-                }
+            String accessControlRequestMethod = ctx.req.getHeader("Access-Control-Request-Method");
+            if (accessControlRequestMethod != null) {
+                ctx.res.setHeader("Access-Control-Allow-Methods", accessControlRequestMethod);
             }
+
+            ctx.status(200);
         });
 
-        JavalinTest.test(app, (server, client) -> {
-            // First call - simulate retrieving from database
-            var response1 = client.get("/files/1").asString();
-            assertEquals(200, response1.getStatus());
-            assertTrue(response1.getBody().contains("File retrieved from DB and cached"));
-
-            // Second call - simulate retrieving from cache
-            var response2 = client.get("/files/1").asString();
-            assertEquals(200, response2.getStatus());
-            assertTrue(response2.getBody().contains("File retrieved from cache"));
+        app.before(ctx -> {
+            ctx.res.setHeader("Access-Control-Allow-Origin", origin);
+            ctx.res.setHeader("Access-Control-Allow-Methods", methods);
+            ctx.res.setHeader("Access-Control-Allow-Headers", headers);
+            ctx.res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
         });
     }
 }
+
