@@ -182,14 +182,22 @@ public class App {
             System.out.println(idea.displayed() == 1 ? "Current idea is visible" : "Current idea is invisible");
             System.out.print("Make it visible (type: 1) or make it invisible (type: 0): ");
             int newVisible = scanner.nextInt();
+
+            System.out.println(idea.file_displayed() == 1 ? "Current file is visible" : "Current file is invisible");
+            System.out.print("Make it visible (type: 1) or make it invisible (type: 0): ");
+            int newFileVisible = scanner.nextInt();
+
+            System.out.println(idea.link_displayed() == 1 ? "Current link is visible" : "Current link is invisible");
+            System.out.print("Make it visible (type: 1) or make it invisible (type: 0): ");
+            int newLinkVisible = scanner.nextInt();
             
             int result = 0;
             if(newMessage.trim().isEmpty()){
-                result = db.updateOne(id, idea.mMessage(), newVisible);
+                result = db.updateOne(id, idea.mMessage(), newVisible, newFileVisible, newLinkVisible);
             }else if (!(newVisible == 1 || newVisible == 0)){
                 System.out.println("You didnt enter a 0 or 1. Try again.");
             }else{
-                result = db.updateOne(id, newMessage, newVisible);
+                result = db.updateOne(id, newMessage, newVisible, newFileVisible, newLinkVisible);
             }
 
             

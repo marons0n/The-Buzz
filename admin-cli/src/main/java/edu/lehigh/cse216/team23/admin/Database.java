@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class Database {
 
-    public static record RowData(int mId, String mMessage, int mVotes, int userId, int displayed) {}
+    public static record RowData(int mId, String mMessage, int mVotes, int userId, int displayed, String file, String link, int file_displayed, int link_displayed) {}
     public static record UserRowData(String uId, String uName, String uEmail, String uGender_identity,String uSexual_orientation, int uRestricted) {}
     public static record CommentRowData(int commentId, int userId, int postId, String message) {}
     public static record VoteRowData(int voteId, int userId, int postId, int updown) {}
@@ -34,12 +34,10 @@ public class Database {
     private static final String SQL_DROP_TABLE_IDEAS = "DROP TABLE IF EXISTS ideas_tbl";
 
     private static final String SQL_INSERT_ONE_IDEAS = 
-            "INSERT INTO ideas_tbl (message, votes, user_id, displayed) VALUES (?, 0, ?, 1)";
+            "INSERT INTO ideas_tbl (message, votes, user_id, displayed, file_displayed, link_displayed) VALUES (?, 0, ?, 1, 1, 1)";
 
     private static final String SQL_UPDATE_ONE_IDEAS = 
-            "UPDATE ideas_tbl SET message = ?, displayed = ? WHERE id = ?";
-
-    
+            "UPDATE ideas_tbl SET message = ?, displayed = ?, file_displayed = ?, link_displayed = ? WHERE id = ?";
 
     private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
@@ -151,14 +149,16 @@ public class Database {
     /**
      * Updates a row in the `ideas_tbl` table by ID.
      */
-    int updateOne(int id, String message, int visible) {
+    int updateOne(int id, String message, int visible, int newFileVisible, int newLinkVisible) {
         if (mUpdateOne == null) init_mUpdateOne();
         int res = -1;
         try {
             System.out.println("Database operation: updateOne()");
             mUpdateOne.setString(1, message);
             mUpdateOne.setInt(2, visible);
-            mUpdateOne.setInt(3, id);
+            mUpdateOne.setInt(3, newFileVisible);
+            mUpdateOne.setInt(4, newLinkVisible);
+            mUpdateOne.setInt(5, id);
             
             res = mUpdateOne.executeUpdate();
         } catch (SQLException e) {
@@ -222,8 +222,12 @@ public class Database {
                 int votes = rs.getInt("votes");
                 int userId = rs.getInt("user_id");
                 int displayed = rs.getInt("displayed");  // Retrieve displayed
+                String link = rs.getString("link");
+                String file = rs.getString("file");
+                int link_displayed = rs.getInt("link_displayed");
+                int file_displayed = rs.getInt("file_displayed");
     
-                res.add(new RowData(id, message, votes, userId, displayed));
+                res.add(new RowData(id, message, votes, userId, displayed, link, file, file_displayed, link_displayed));
             }
             rs.close();
         } catch (SQLException e) {
@@ -259,8 +263,12 @@ public class Database {
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
                 int userId = rs.getInt("user_id");
-                int displayed = 1;
-                data = new RowData(id, message, votes, userId, displayed);
+                int displayed = rs.getInt("displayed");  // Retrieve displayed
+                String link = rs.getString("link");
+                String file = rs.getString("file");
+                int link_displayed = rs.getInt("link_displayed");
+                int file_displayed = rs.getInt("file_displayed");
+                data = new RowData(id, message, votes, userId, displayed, link, file, link_displayed, file_displayed);
             }
             rs.close();
         } catch (SQLException e) {
