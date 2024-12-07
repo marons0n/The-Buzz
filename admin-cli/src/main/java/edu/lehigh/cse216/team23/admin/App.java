@@ -45,6 +45,7 @@ public class App {
         System.out.println("  [c] Insert new idea");
         System.out.println("  [d] Update an idea");
         System.out.println("  [e] Delete an idea");
+        System.out.println("  [f] Show all documents");
         System.out.println("\nUsers:");
         System.out.println("  [g] Find all users");
         System.out.println("  [h] Find a user by user ID");
@@ -81,6 +82,9 @@ public class App {
                 break;
             case "e":
                 deleteIdea(db);
+                break;
+            case "f":
+                showDocuments(db);
                 break;
             case "g":
                 findAllUsers(db);
@@ -214,6 +218,20 @@ public class App {
         System.out.println(result > 0 ? "Idea deleted successfully." : "Failed to delete idea.");
     }
 
+    private static void showDocuments(Database db) {
+        ArrayList<Database.RowData> ideas = db.selectAll();
+        if (ideas != null && !ideas.isEmpty()) {
+            System.out.println("Documents:");
+            for (Database.RowData idea : ideas) {
+                if (idea.file() != null && !idea.file().isEmpty()) {
+                    System.out.println("Idea ID: " + idea.mId() + ", File: " + idea.file() + ", Last accessed: " + idea.last_accessed());
+                }
+            }
+        } else {
+            System.out.println("No documents found.");
+        }
+    }
+
     //USER ITEMS
 
     public static void findAllUsers(Database db) {
@@ -297,7 +315,7 @@ public class App {
 
     private static void insertNewComment(Database db) {
         System.out.print("Enter user ID: ");
-        int userId = Integer.parseInt(scanner.nextLine());
+        String userId = scanner.nextLine();
         System.out.print("Enter post ID: ");
         int postId = Integer.parseInt(scanner.nextLine());
         System.out.print("Enter comment message: ");

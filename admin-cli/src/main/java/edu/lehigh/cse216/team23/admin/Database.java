@@ -13,10 +13,10 @@ import java.util.Map;
  */
 public class Database {
 
-    public static record RowData(int mId, String mMessage, int mVotes, int userId, int displayed, String file, String link, int file_displayed, int link_displayed) {}
+    public static record RowData(int mId, String mMessage, int mVotes, String userId, int displayed, String file, String link, int file_displayed, int link_displayed, String last_accessed) {}
     public static record UserRowData(String uId, String uName, String uEmail, String uGender_identity,String uSexual_orientation, int uRestricted) {}
-    public static record CommentRowData(int commentId, int userId, int postId, String message) {}
-    public static record VoteRowData(int voteId, int userId, int postId, int updown) {}
+    public static record CommentRowData(int commentId, String userId, int postId, String message) {}
+    public static record VoteRowData(int voteId, String userId, int postId, int updown) {}
 
     private Connection mConnection;
 
@@ -41,7 +41,7 @@ public class Database {
 
     private static final String SQL_DELETE_ONE = "DELETE FROM ideas_tbl WHERE id = ?";
 
-    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, message, votes, user_id, displayed FROM ideas_tbl";
+    private static final String SQL_SELECT_ALL_IDEAS = "SELECT id, message, votes, user_id, displayed, file, link, file_displayed, link_displayed, last_accessed FROM ideas_tbl";
 
     private static final String SQL_SELECT_ONE_IDEAS = 
             "SELECT * FROM ideas_tbl WHERE id = ?";
@@ -220,14 +220,15 @@ public class Database {
                 int id = rs.getInt("id");
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
-                int userId = rs.getInt("user_id");
+                String userId = rs.getString("user_id");
                 int displayed = rs.getInt("displayed");  // Retrieve displayed
                 String link = rs.getString("link");
                 String file = rs.getString("file");
                 int link_displayed = rs.getInt("link_displayed");
                 int file_displayed = rs.getInt("file_displayed");
+                String last_accessed = rs.getString("last_accessed");
     
-                res.add(new RowData(id, message, votes, userId, displayed, link, file, file_displayed, link_displayed));
+                res.add(new RowData(id, message, votes, userId, displayed, link, file, file_displayed, link_displayed, last_accessed));
             }
             rs.close();
         } catch (SQLException e) {
@@ -262,13 +263,14 @@ public class Database {
             if (rs.next()) {
                 String message = rs.getString("message");
                 int votes = rs.getInt("votes");
-                int userId = rs.getInt("user_id");
+                String userId = rs.getString("user_id");
                 int displayed = rs.getInt("displayed");  // Retrieve displayed
                 String link = rs.getString("link");
                 String file = rs.getString("file");
                 int link_displayed = rs.getInt("link_displayed");
                 int file_displayed = rs.getInt("file_displayed");
-                data = new RowData(id, message, votes, userId, displayed, link, file, link_displayed, file_displayed);
+                String last_access = rs.getString("last_accessed");
+                data = new RowData(id, message, votes, userId, displayed, link, file, link_displayed, file_displayed, last_access);
             }
             rs.close();
         } catch (SQLException e) {
@@ -702,12 +704,12 @@ public class Database {
     }
 
     // Inserts a new comment into the `comments_tbl` table
-    int insertComment(int userId, int postId, String message) {
+    int insertComment(String userId, int postId, String message) {
         if (mInsertOneComment == null) init_mInsertOneComment();
         int count = 0;
         try {
             System.out.println("Database operation: insertComment()");
-            mInsertOneComment.setInt(1, userId);
+            mInsertOneComment.setString(1, userId);
             mInsertOneComment.setInt(2, postId);
             mInsertOneComment.setString(3, message);
             count += mInsertOneComment.executeUpdate();
@@ -791,7 +793,7 @@ public class Database {
             ResultSet rs = mSelectAllComments.executeQuery();
             while (rs.next()) {
                 int commentId = rs.getInt("comment_id");
-                int userId = rs.getInt("user_id");
+                String userId = rs.getString("user_id");
                 int postId = rs.getInt("post_id");
                 String message = rs.getString("message");
                 res.add(new CommentRowData(commentId, userId, postId, message));
@@ -824,7 +826,7 @@ public class Database {
             mSelectOneComment.setInt(1, commentId);
             ResultSet rs = mSelectOneComment.executeQuery();
             if (rs.next()) {
-                int userId = rs.getInt("user_id");
+                String userId = rs.getString("user_id");
                 int postId = rs.getInt("post_id");
                 String message = rs.getString("message");
                 data = new CommentRowData(commentId, userId, postId, message);
@@ -935,14 +937,14 @@ public class Database {
     }
 
     // Inserts a new vote into the votes_tbl
-    int insertVote(int userId, int postId, int updown) {
+    int insertVote(String userId, int postId, int updown) {
         if (mInsertOneVote == null) init_mInsertOneVote();  // Initialize the insert statement if not already initialized
         int count = 0;
         try {
             System.out.println("Database operation: insertVote()");
     
             // Insert the vote record into the 'votes' table
-            mInsertOneVote.setInt(1, userId);
+            mInsertOneVote.setString(1, userId);
             mInsertOneVote.setInt(2, postId);
             mInsertOneVote.setInt(3, updown);
             count += mInsertOneVote.executeUpdate();
@@ -1144,7 +1146,7 @@ public class Database {
             ResultSet rs = mSelectAllVotes.executeQuery();
             while (rs.next()) {
                 int voteId = rs.getInt("vote_id");
-                int userId = rs.getInt("user_id");
+                String userId = rs.getString("user_id");
                 int postId = rs.getInt("post_id");
                 int updown = rs.getInt("updown");
                 res.add(new VoteRowData(voteId, userId, postId, updown));
@@ -1177,7 +1179,7 @@ public class Database {
             mSelectOneVote.setInt(1, voteId);
             ResultSet rs = mSelectOneVote.executeQuery();
             if (rs.next()) {
-                int userId = rs.getInt("user_id");
+                String userId = rs.getString("user_id");
                 int postId = rs.getInt("post_id");
                 int updown = rs.getInt("updown");
                 data = new VoteRowData(voteId, userId, postId, updown);
@@ -1248,10 +1250,10 @@ public class Database {
         }
         return null;
     }
-    public boolean userExists(int userId) {
+    public boolean userExists(String userId) {
     String query = "SELECT COUNT(*) FROM users_tbl WHERE user_id = ?";
     try (PreparedStatement stmt = mConnection.prepareStatement(query)) {
-        stmt.setInt(1, userId);
+        stmt.setString(1, userId);
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
             return rs.getInt(1) > 0;
