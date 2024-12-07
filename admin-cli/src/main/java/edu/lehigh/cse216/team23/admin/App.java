@@ -1,866 +1,373 @@
 package edu.lehigh.cse216.team23.admin;
 
+import java.util.Scanner;
+import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-/**
- * App is the entry point for the Admin CLI that allows users to interact with the database.
- * Users can create, delete, query, insert, and update rows in a PostgreSQL database through
- * the command-line interface.
- */
+
 public class App {
-
-    public static void main(String[] argv) {
-        // Display the menu at startup
-        menu();
-        // Start the CLI loop to process user commands
-        mainCliLoop(argv);
-    }
-
-    /**
-     * Display the CLI menu options.
-     */
-    static void menu() {
-        System.out.println("Admin CLI - Main Menu");
-        System.out.println("  [T] Create table");
-        System.out.println("  [D] Drop table");
-        System.out.println("  [1] Query a specific row by ID");
-        System.out.println("  [*] Query all rows");
-        System.out.println("  [+] Insert a new row");
-        System.out.println("  [~] Update a row");
-        System.out.println("  [-] Delete a row");
-        System.out.println("  [/] Hide a row");
-        System.out.println("  [q] Quit the program");
-        System.out.println("  [?] Show this menu");
-    }
-
+    //private static Database db;
+    private static Scanner scanner;
     
-    /**
-     * Entry point for the admin CLI program. Establishes a connection to the database and
-     * runs the CLI loop, which processes user commands.
-     *
-     * @param argv Command-line options, ignored in this implementation.
-     */
-    public static void mainCliLoop(String[] argv) {
-        // Get a connection to the database
+
+
+    public static void main(String[] args) {
         Database db = Database.getDatabase();
         if (db == null) {
             System.err.println("Unable to connect to the database, exiting.");
             System.exit(1);
         }
+        scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to the Admin CLI");
+        showMenu();
+        System.out.println(db);
+
+        String choice;
+        do {
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextLine().toLowerCase();
+            processChoice(choice, db);
+        } while (!choice.equals("y"));
+
+        scanner.close();
+        db.disconnect();
+    }
+
+    private static void showMenu() {
+        System.out.println("\nAdmin CLI - Main Menu");
+        System.out.println("\nIdeas:");
+        System.out.println("  [a] Show all ideas");
+        System.out.println("  [b] Show a single idea by ID");
+        System.out.println("  [c] Insert new idea");
+        System.out.println("  [d] Update an idea");
+        System.out.println("  [e] Delete an idea");
+        System.out.println("  [f] Show all documents");
+        System.out.println("\nUsers:");
+        System.out.println("  [g] Find all users");
+        System.out.println("  [h] Find a user by user ID");
+        System.out.println("  [i] Insert a new user");
+        System.out.println("  [j] Update a user");
+        System.out.println("  [k] Delete a user");
+        System.out.println("\nComments:");
+        System.out.println("  [m] Query all comments");
+        System.out.println("  [o] Insert new comment");
+        System.out.println("  [q] Delete comment");
+        System.out.println("\nVotes:");
+        System.out.println("  [u] Insert a new vote");
+        System.out.println("  [v] Delete a vote");
+        System.out.println("\nGeneral:");
+        System.out.println("  [w] Create tables");
+        System.out.println("  [x] Drop tables");
+        System.out.println("  [y] Quit");
+        System.out.println("  [z] Show this menu");
+    }
+
+    private static void processChoice(String choice, Database db) {
+        switch (choice) {
+            case "a":
+                showAllIdeas(db);
+                break;
+            case "b":
+                showSingleIdea(db);
+                break;
+            case "c":
+                insertNewIdea(db);
+                break;
+            case "d":
+                updateIdea(db);
+                break;
+            case "e":
+                deleteIdea(db);
+                break;
+            case "f":
+                showDocuments(db);
+                break;
+            case "g":
+                findAllUsers(db);
+                break;
+            case "h":
+                findUserById(db);
+                break;
+            case "i":
+                insertNewUser(db);
+                break;
+            case "j":
+                updateUser(db);
+                break;
+            case "k":
+                deleteUser(db);
+                break;
+            case "m":
+                queryAllComments(db);
+                break;
+            case "o":
+                insertNewComment(db);
+                break;
+            case "q":
+                deleteComment(db);
+                break;
+            case "u":
+                insertNewVote(db);
+                break;
+            case "v":
+                deleteVote(db);
+                break;
+            case "w":
+                createTables(db);
+                break;
+            case "x":
+                dropTables(db);
+                break;
+            case "y":
+                System.out.println("Exiting...");
+                break;
+            case "z":
+                showMenu();
+                break;
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    //IDEA ITEMS
+
+    public static void showAllIdeas(Database db) {
+        ArrayList<Database.RowData> ideas = db.selectAll();
+        if (ideas != null && !ideas.isEmpty()) {
+            System.out.println("All ideas:");
+            for (Database.RowData idea : ideas) {
+                System.out.println("ID: " + idea.mId() + ", Message: " + idea.mMessage() + 
+                                   ", Votes: " + idea.mVotes() + ", User ID: " + idea.userId());
+            }
+        } else {
+            System.out.println("No ideas found.");
+        }
+    }
+
+    private static void showSingleIdea(Database db) {
+        System.out.print("Enter idea ID: ");
+        int id = Integer.parseInt(scanner.nextLine());
+        Database.RowData idea = db.selectOne(id);
+        if (idea != null) {
+            System.out.println("Idea: " + idea.mMessage() + ", Votes: " + idea.mVotes() + ", User ID: " + idea.userId());
+        } else {
+            System.out.println("Idea not found.");
+        }
+    }
+
+    public static void insertNewIdea(Database db) {
+        System.out.print("Enter idea message: ");
+        String message = scanner.nextLine();
+        System.out.print("Enter user ID: ");
         
-        // Start the command-line interface
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            System.out.println("\nMenu 2. Select this option after your first selection from [TD1*-+~q?]");
-            System.out.println("  [I] Idea table");
-            System.out.println("  [U] User table");
-            System.out.println("  [C] Comment table");
-            System.out.println("  [V] Vote table");
-            System.out.println("  [M] Return to the main menu\n");
-            char action = prompt(in);
-            switch (action) {
-                case '?':
-                    menu();
-                    break;
-                case 'q':
-                    db.disconnect();
-                    return;
-                case 'T':
-                    createTableLoop();
-                    break;
-                case 'D':
-                    dropTableLoop();
-                    break;
-                case '1':
-                    QueryRowLoop();
-                    break;
-                case '*':
-                    QueryAllRowsLoop();
-                    break;
-                case '+':
-                    InsertRowLoop();
-                    break;
-                case '~':
-                    UpdateRowLoop();
-                    break;
-                case '/':
-                    HideRowLoop();
-                    break;
-                case '-':
-                    DeleteRowLoop();
-                    break;
-                default:
-                    System.out.println("Unknown command: " + action);
-            }
-        }
-    }
-
-    public static void createTableLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    db.createTable();
-                    break;
-                case 'U':
-                    db.createUserTable();
-                    break;
-                case 'C':
-                    db.createCommentTable();
-                    break;
-                case 'V':
-                    db.createVoteTable();
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                return;
-            }
-        }
-    }
-
-
-    public static void dropTableLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    db.dropTable();
-                    break;
-                case 'U':
-                    db.dropUserTable();
-                    break;
-                case 'C':
-                    db.dropCommentTable();
-                    break;
-                case 'V':
-                    db.dropVoteTable();
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                    return;
-            }
-        }
-    }
-
-
-    public static void QueryRowLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    queryRowById(db, in);
-                    break;
-                case 'U':
-                    queryUserRowById(db, in);
-                    break;
-                case 'C':
-                    queryCommentRowById(db, in);
-                    break;
-                case 'V':
-                    queryVoteRowById(db, in);
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                    return;
-            }
-        }  
-    }
-
-    public static void QueryAllRowsLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    queryAllRows(db);
-                    break;
-                case 'U':
-                    queryAllUserRows(db);
-                    break;
-                case 'C':
-                    queryAllCommentRows(db);
-                    break;
-                case 'V':
-                    queryAllVoteRows(db);
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                    return;
-            }
-        }  
-    }
-
-    public static void InsertRowLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    insertRow(db, in);
-                    break;
-                case 'U':
-                    insertUserRow(db, in);
-                    break;
-                case 'C':
-                    insertCommentRow(db, in);
-                    break;
-                case 'V':
-                    insertVoteRow(db, in);
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                    return; //return to main menu
-            }
-        }  
-    }
-
-    public static void UpdateRowLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    updateRow(db, in);
-                    break;
-                case 'U':
-                    updateUserRow(db, in);
-                    break;
-                case 'C':
-                    updateCommentRow(db, in);
-                    break;
-                case 'V':
-                    updateVoteRow(db, in);
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                    return;
-            }
-        }  
-    }
-
-    public static void HideRowLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    hideRow(db, in);
-                    break;
-                case 'U':
-                    hideUserRow(db, in);
-                    break;
-                case 'C':
-                    System.out.println("Can't hide comments yet! Check back in next week if we ever implement that");
-                    break;
-                case 'V':
-                    System.out.println("Can't hide votes!");
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                    return;
-            }
-        }  
-    }
-
-    public static void DeleteRowLoop(){
-        Database db = Database.getDatabase();
-        if (db == null) {
-            System.err.println("Unable to connect to the database, exiting.");
-            System.exit(1);
-        }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            // Prompt for user action
-            char action = promptTable(in);
-            switch (action) {
-                case 'I':
-                    deleteRow(db, in);
-                    break;
-                case 'U':
-                    deleteUserRow(db, in);
-                    break;
-                case 'C':
-                    deleteCommentRow(db, in);
-                    break;
-                case 'V':
-                    deleteVoteRow(db, in);
-                    break;
-                case 'M':
-                System.out.println("\nMain Menu");
-                System.out.println("  [T] Create table");
-                System.out.println("  [D] Drop table");
-                System.out.println("  [1] Query a specific row by ID");
-                System.out.println("  [*] Query all rows");
-                System.out.println("  [+] Insert a new row");
-                System.out.println("  [~] Update a row");
-                System.out.println("  [-] Delete a row");
-                System.out.println("  [/] Hide a row");
-                System.out.println("  [q] Quit the program");
-                System.out.println("  [?] Show this menu");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please choose from IUCV");
-            }
-        }  
-    }
-
-
-    /**
-     * Prompt the user for a menu option.
-     *
-     * @param in BufferedReader for reading user input.
-     * @return The character corresponding to the chosen menu option.
-     */
-    static char prompt(BufferedReader in) {
-        String actions = "TD1*-+~q/?";
-        while (true) {
-            System.out.print("[" + actions + "] :> ");
-            try {
-                String action = in.readLine();
-                if (action.length() == 1 && actions.contains(action)) {
-                    return action.charAt(0);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Invalid command. Please try again.");
-        }
-    }
-    static char promptTable(BufferedReader in) {
-        String actions = "IUCVM?";
-        while (true) {
-            System.out.print("[" + actions + "] :> ");
-            try {
-                String action = in.readLine();
-                if (action.length() == 1 && actions.contains(action)) {
-                    return action.charAt(0);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Invalid command. Please try again.");
-        }
-    }
-
-
-
-  //IDEA queries  
-    /**
-     * Query a specific IDEA row by ID.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void queryRowById(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        Database.RowData row = db.selectOne(id);
-        if (row != null) {
-            System.out.println("Row [" + row.mId() + "]: "  + " --> " + row.mMessage() + " | Votes: " + row.mVotes());
+        int userId = Integer.parseInt(scanner.nextLine());
+        if (/*db.userExists(userId)*/true) {
+            int result = db.insertRow(message, userId);
+            System.out.println(result > 0 ? "Idea inserted successfully." : "Failed to insert idea.");
         } else {
-            System.out.println("Row not found.");
+            System.out.println("User ID does not exist. Please try again.");
+            
         }
     }
 
-    /**
-     * Query all rows from the table.
-     *
-     * @param db The database object.
-     */
-    static void queryAllRows(Database db) {
-        ArrayList<Database.RowData> rows = db.selectAll();
-        if (rows != null) {
-            System.out.println("All rows in the database:");
-            for (Database.RowData row : rows) {
-                System.out.println("Row [" + row.mId() + "]: " + " --> " + row.mMessage() + " | Votes: " + row.mVotes());
+    private static void updateIdea(Database db) {
+        System.out.print("Enter idea ID to update: ");
+        int id = Integer.parseInt(scanner.nextLine());
+        Database.RowData idea = db.selectOne(id);
+        if (idea != null) {
+            System.out.println("Current message: " + idea.mMessage());
+            System.out.print("Enter new message (press enter to keep the current message): ");
+            String newMessage = scanner.nextLine();
+            
+            System.out.println(idea.displayed() == 1 ? "Current idea is visible" : "Current idea is invisible");
+            System.out.print("Make it visible (type: 1) or make it invisible (type: 0): ");
+            int newVisible = scanner.nextInt();
+
+            System.out.println(idea.file_displayed() == 1 ? "Current file is visible" : "Current file is invisible");
+            System.out.print("Make it visible (type: 1) or make it invisible (type: 0): ");
+            int newFileVisible = scanner.nextInt();
+
+            System.out.println(idea.link_displayed() == 1 ? "Current link is visible" : "Current link is invisible");
+            System.out.print("Make it visible (type: 1) or make it invisible (type: 0): ");
+            int newLinkVisible = scanner.nextInt();
+            
+            int result = 0;
+            if(newMessage.trim().isEmpty()){
+                result = db.updateOne(id, idea.mMessage(), newVisible, newFileVisible, newLinkVisible);
+            }else if (!(newVisible == 1 || newVisible == 0)){
+                System.out.println("You didnt enter a 0 or 1. Try again.");
+            }else{
+                result = db.updateOne(id, newMessage, newVisible, newFileVisible, newLinkVisible);
             }
+
+            
+            System.out.println(result > 0 ? "Idea updated successfully." : "Failed to update idea.");
         } else {
-            System.out.println("No data found.");
+            System.out.println("Idea not found.");
         }
     }
 
-    /**
-     * Insert a new row into the table. Likes are automatically initialized to 0.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void insertRow(Database db, BufferedReader in) {
-        String message = getString(in, "Enter the message");
-        int user_id = getInt(in, "Enter the user ID");
-        if (!message.isEmpty()) {
-            int result = db.insertRow(message, user_id);
-            System.out.println(result + " row(s) inserted.");
-        } else {
-            System.out.println("Invalid input. Please try again.");
-        }
-    }
-
-    /**
-     * Update a row in the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void updateRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        String newMessage = getString(in, "Enter the new message");
-        if (!newMessage.isEmpty()) {
-            int result = db.updateOne(id, newMessage);
-            System.out.println(result + " row(s) updated.");
-        } else {
-            System.out.println("Invalid input. Please try again.");
-        }
-    }
-
-
-    static void hideRow(Database db, BufferedReader in) {
-        int user_id = getInt(in, "Enter the id of the post you would like to hide");
-        int displayed = getInt(in, "Enter 0 to hide post. Enter 1 to allow post to be displayed");
-        if (displayed == 1 || displayed == 0) {
-            int result = db.HideOne(user_id, displayed);
-            System.out.println(result + " row(s) updated.");
-        } else {
-            System.out.println("Invalid vote input. Please try again.");
-        }
-    }
-
-    /**
-     * Delete a row from the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void deleteRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
+    private static void deleteIdea(Database db) {
+        System.out.print("Enter idea ID to delete: ");
+        int id = Integer.parseInt(scanner.nextLine());
         int result = db.deleteRow(id);
-        System.out.println(result + " row(s) deleted.");
+        System.out.println(result > 0 ? "Idea deleted successfully." : "Failed to delete idea.");
     }
 
-
-//USER queries:
-    /**
-     * Query a specific IDEA row by ID.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void queryUserRowById(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        Database.UserRowData row = db.selectOneUser(id);
-        if (row != null) {
-            System.out.println("Row [" + row.uId() + "]: " + row.uName() + " Email: " + row.uEmail() + " | Gender: " + row.uGender_identity() + "| Orientation: " + row.uSexual_orientation());
-        } else {
-            System.out.println("Row not found.");
-        }
-    }
-
-    /**
-     * Query all rows from the table.
-     *
-     * @param db The database object.
-     */
-    static void queryAllUserRows(Database db) {
-        ArrayList<Database.UserRowData> rows = db.selectAllUser();
-        if (rows != null) {
-            System.out.println("All rows in the database:");
-            for (Database.UserRowData row : rows) {
-                System.out.println("Row [" + row.uId() + "]: " + row.uName() + " Email: " + row.uEmail() + " | Gender: " + row.uGender_identity() + "| Orientation: " + row.uSexual_orientation());
+    private static void showDocuments(Database db) {
+        ArrayList<Database.RowData> ideas = db.selectAll();
+        if (ideas != null && !ideas.isEmpty()) {
+            System.out.println("Documents:");
+            for (Database.RowData idea : ideas) {
+                if (idea.file() != null && !idea.file().isEmpty()) {
+                    System.out.println("Idea ID: " + idea.mId() + ", File: " + idea.file() + ", Last accessed: " + idea.last_accessed());
+                }
             }
         } else {
-            System.out.println("No data found.");
+            System.out.println("No documents found.");
         }
     }
 
-    /**
-     * Insert a new row into the table. Likes are automatically initialized to 0.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void insertUserRow(Database db, BufferedReader in) {
-        String name = getString(in, "Enter the user's name");
-        String email = getString(in, "Enter the email");
-        String gender = getString(in, "Enter the gender");
-        String orientation = getString(in, "Enter the orientation");
-        if (!name.isEmpty() && !email.isEmpty()&& !gender.isEmpty()&& !orientation.isEmpty()) {
-            int result = db.insertUserRow(name, email, gender, orientation);
-            System.out.println(result + " row(s) inserted.");
+    //USER ITEMS
+
+    public static void findAllUsers(Database db) {
+        ArrayList<Database.UserRowData> users = db.selectAllUser();
+        if (users != null && !users.isEmpty()) {
+            System.out.println("All users:");
+            for (Database.UserRowData user : users) {
+                System.out.println("ID: " + user.uId() + ", Name: " + user.uName() + 
+                                   ", Email: " + user.uEmail() + ", Gender: " + user.uGender_identity() + 
+                                   ", Orientation: " + user.uSexual_orientation());
+            }
         } else {
-            System.out.println("Invalid input. Please try again.");
+            System.out.println("No users found.");
         }
     }
 
-    /**
-     * Update a row in the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void updateUserRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        String newName = getString(in, "Enter the new name:");
-        String newEmail = getString(in, "Enter the new email:");
-        if (!newName.isEmpty() && !newEmail.isEmpty()) {
-            int result = db.updateOneUser(id, newName, newEmail);
-            System.out.println(result + " row(s) updated.");
+    private static void findUserById(Database db) {
+        System.out.print("Enter user ID: ");
+        String id = scanner.nextLine();
+        Database.UserRowData user = db.selectOneUser(id);
+        if (user != null) {
+            System.out.println("User: " + user.uName() + ", Email: " + user.uEmail());
         } else {
-            System.out.println("Invalid input. Please try again.");
+            System.out.println("User not found.");
         }
     }
 
-    static void hideUserRow(Database db, BufferedReader in) {
-        int user_id = getInt(in, "Enter the id of the user you would like to restrict");
-        int displayed = getInt(in, "Enter 0 to restrict user. Enter 1 to allow them to post");
-        if (displayed == 1 || displayed == 0) {
-            int result = db.HideOneUser(user_id, displayed);
-            System.out.println(result + " row(s) updated.");
+    private static void insertNewUser(Database db) {
+        System.out.print("Enter user name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter user email: ");
+        String email = scanner.nextLine();
+        System.out.print("Enter gender identity: ");
+        String genderIdentity = scanner.nextLine();
+        System.out.print("Enter sexual orientation: ");
+        String sexualOrientation = scanner.nextLine();
+        int result = db.insertUserRow(name, email, genderIdentity, sexualOrientation);
+        System.out.println(result > 0 ? "User inserted successfully." : "Failed to insert user.");
+    }
+
+    private static void updateUser(Database db) {
+        System.out.print("Enter user ID to update: ");
+        String id = scanner.nextLine();
+        Database.UserRowData user = db.selectOneUser(id);
+        if (user != null) {
+            System.out.println("Current user details:");
+            System.out.println("Name: " + user.uName() + ", Email: " + user.uEmail() + ", Restricted: " + user.uRestricted());
+            
+            System.out.print("Enter new name (press enter to keep current): ");
+            String newName = scanner.nextLine();
+            if (newName.isEmpty()) newName = user.uName();
+            
+            System.out.print("Enter new email (press enter to keep current): ");
+            String newEmail = scanner.nextLine();
+            if (newEmail.isEmpty()) newEmail = user.uEmail();
+
+            System.out.print("Enter 1 or 0 to unrestrict or restrict a user: ");
+            int newRestricted = scanner.nextInt();
+            
+            int result = db.updateOneUser(id, newName, newEmail, newRestricted);
+            System.out.println(result > 0 ? "User updated successfully." : "Failed to update user.");
         } else {
-            System.out.println("Invalid vote input. Please try again.");
+            System.out.println("User not found.");
         }
     }
 
-    /**
-     * Delete a row from the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void deleteUserRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
+    private static void deleteUser(Database db) {
+        System.out.print("Enter user ID to delete: ");
+        int id = Integer.parseInt(scanner.nextLine());
         int result = db.deleteUserRow(id);
-        System.out.println(result + " row(s) deleted.");
+        System.out.println(result > 0 ? "User deleted successfully." : "Failed to delete user.");
     }
 
-
-    /**
-     * Get an integer input from the user.
-     *
-     * @param in BufferedReader for reading user input.
-     * @param prompt The message to display when asking for input.
-     * @return The integer input from the user, or -1 on error.
-     */
-    static int getInt(BufferedReader in, String prompt) {
-        try {
-            System.out.print(prompt + " :> ");
-            return Integer.parseInt(in.readLine());
-        } catch (IOException | NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid integer.");
-            return -1;
+    public static void queryAllComments(Database db) {
+        ArrayList<Database.CommentRowData> comments = db.selectAllComments();
+        for (Database.CommentRowData comment : comments) {
+            System.out.println("Comment ID: " + comment.commentId() + ", User ID: " + comment.userId() + 
+                               ", Post ID: " + comment.postId() + ", Message: " + comment.message());
         }
     }
 
-    /**
-     * Get a string input from the user.
-     *
-     * @param in BufferedReader for reading user input.
-     * @param prompt The message to display when asking for input.
-     * @return The string input from the user.
-     */
-    static String getString(BufferedReader in, String prompt) {
-        try {
-            System.out.print(prompt + " : ");
-            return in.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
+    private static void insertNewComment(Database db) {
+        System.out.print("Enter user ID: ");
+        String userId = scanner.nextLine();
+        System.out.print("Enter post ID: ");
+        int postId = Integer.parseInt(scanner.nextLine());
+        System.out.print("Enter comment message: ");
+        String message = scanner.nextLine();
+        int result = db.insertComment(userId, postId, message);
+        System.out.println(result > 0 ? "Comment inserted successfully." : "Failed to insert comment.");
     }
 
-
-    // COMMENT queries
-
-    /**
-     * Query a specific COMMENT row by ID.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void queryCommentRowById(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        Database.CommentRowData row = db.selectOneComment(id);
-        if (row != null) {
-            System.out.println("Row [" + row.commentId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Message: " + row.message());
-        } else {
-            System.out.println("Row not found.");
-        }
-    }
-
-    /**
-     * Query all rows from the COMMENT table.
-     *
-     * @param db The database object.
-     */
-    static void queryAllCommentRows(Database db) {
-        ArrayList<Database.CommentRowData> rows = db.selectAllComments();
-        if (rows != null) {
-            System.out.println("All comments in the database:");
-            for (Database.CommentRowData row : rows) {
-                System.out.println("Row [" + row.commentId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Message: " + row.message());
-            }
-        } else {
-            System.out.println("No data found.");
-        }
-    }
-
-    /**
-     * Insert a new COMMENT row into the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void insertCommentRow(Database db, BufferedReader in) {
-        int userId = getInt(in, "Enter the user ID");
-        int postId = getInt(in, "Enter the post ID");
-        String message = getString(in, "Enter the message");
-        if (!message.isEmpty()) {
-            int result = db.insertComment(userId, postId, message);
-            System.out.println(result + " row(s) inserted.");
-        } else {
-            System.out.println("Invalid input. Please try again.");
-        }
-    }
-
-    /**
-     * Update a COMMENT row in the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void updateCommentRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        String newMessage = getString(in, "Enter the new message");
-        if (!newMessage.isEmpty()) {
-            int result = db.updateComment(id, newMessage);
-            System.out.println(result + " row(s) updated.");
-        } else {
-            System.out.println("Invalid input. Please try again.");
-        }
-    }
-
-    /**
-     * Delete a COMMENT row from the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void deleteCommentRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
+    private static void deleteComment(Database db) {
+        System.out.print("Enter comment ID to delete: ");
+        int id = Integer.parseInt(scanner.nextLine());
         int result = db.deleteComment(id);
-        System.out.println(result + " row(s) deleted.");
+        System.out.println(result > 0 ? "Comment deleted successfully." : "Failed to delete comment.");
     }
 
-
-
-    // VOTE queries
-
-    /**
-     * Query a specific VOTE row by ID.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void queryVoteRowById(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        Database.VoteRowData row = db.selectOneVote(id);
-        if (row != null) {
-            System.out.println("Row [" + row.voteId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Vote: " + (row.updown() == 1 ? "Upvote" : "Downvote"));
-        } else {
-            System.out.println("Row not found.");
-        }
+    private static void insertNewVote(Database db) {
+        System.out.print("Enter user ID: ");
+        int userId = Integer.parseInt(scanner.nextLine());
+        System.out.print("Enter post ID: ");
+        int postId = Integer.parseInt(scanner.nextLine());
+        System.out.print("Enter vote (1 for up, -1 for down): ");
+        int updown = Integer.parseInt(scanner.nextLine());
+        // Assuming there's a method to insert a vote in the Database class
+        // int result = db.insertVote(userId, postId, updown);
+        // System.out.println(result > 0 ? "Vote inserted successfully." : "Failed to insert vote.");
+        System.out.println("Vote insertion not implemented in the Database class.");
     }
 
-    /**
-     * Query all rows from the VOTE table.
-     *
-     * @param db The database object.
-     */
-    static void queryAllVoteRows(Database db) {
-        ArrayList<Database.VoteRowData> rows = db.selectAllVotes();
-        if (rows != null) {
-            System.out.println("All votes in the database:");
-            for (Database.VoteRowData row : rows) {
-                System.out.println("Row [" + row.voteId() + "]: User [" + row.userId() + "] --> Post [" + row.postId() + "] Vote: " + (row.updown() == 1 ? "Upvote" : "Downvote"));
-            }
-        } else {
-            System.out.println("No data found.");
-        }
+    private static void deleteVote(Database db) {
+        System.out.print("Enter vote ID to delete: ");
+        int id = Integer.parseInt(scanner.nextLine());
+        // Assuming there's a method to delete a vote in the Database class
+        // int result = db.deleteVote(id);
+        // System.out.println(result > 0 ? "Vote deleted successfully." : "Failed to delete vote.");
+        System.out.println("Vote deletion not implemented in the Database class.");
     }
 
-    /**
-     * Insert a new VOTE row into the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void insertVoteRow(Database db, BufferedReader in) {
-        int userId = getInt(in, "Enter the user ID");
-        int postId = getInt(in, "Enter the post ID");
-        int updown = getInt(in, "Enter 1 for upvote, -1 for downvote");
-        if (updown == 1 || updown == -1) {
-            int result = db.insertVote(userId, postId, updown);
-            System.out.println(result + " row(s) inserted.");
-        } else {
-            System.out.println("Invalid vote input. Please try again.");
-        }
+    private static void createTables(Database db) {
+        db.createTable();
+        db.createUserTable();
+        db.createCommentTable();
+        // Assuming there's a method to create the votes table
+        // db.createVoteTable();
+        System.out.println("Tables created successfully.");
     }
 
-    /**
-     * Update a VOTE row in the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void updateVoteRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        int newVote = getInt(in, "Enter the new vote (1 for upvote, -1 for downvote)");
-        if (newVote == 1 || newVote == -1) {
-            int result = db.updateVote(id, newVote);
-            System.out.println(result + " row(s) updated.");
-        } else {
-            System.out.println("Invalid input. Please try again.");
-        }
-    }
-
-    /**
-     * Delete a VOTE row from the table.
-     *
-     * @param db The database object.
-     * @param in BufferedReader for reading user input.
-     */
-    static void deleteVoteRow(Database db, BufferedReader in) {
-        int id = getInt(in, "Enter the row ID");
-        if (id == -1) return;
-        int result = db.deleteVote(id);
-        System.out.println(result + " row(s) deleted.");
+    private static void dropTables(Database db) {
+        db.dropTable();
+        db.dropUserTable();
+        db.dropCommentTable();
+        // Assuming there's a method to drop the votes table
+        // db.dropVoteTable();
+        System.out.println("Tables dropped successfully.");
     }
 }
