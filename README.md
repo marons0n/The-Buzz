@@ -6,44 +6,12 @@ The Buzz was a project completed as a project for CSE216 Software Engineering at
 
 ---
 
-## 👥 Team Information
-
-### Fall 2024 - Team 23 (team_23)
-
-| Name | Email |
-|------|-------|
-| Matthew Aronson | maa362@lehigh.edu |
-| Warren Noubi | wdn225@lehigh.edu |
-| Lily Fandre | lmf226@lehigh.edu |
-| Stefania Dzhaman | sad823@lehigh.edu |
-| Andre Escobedo | aee225@lehigh.edu |
-
----
-
-## 🔗 Important Links
-
-
----
-
 ## 🛠 Technologies Used
 
-- **Backend**: Java with Javaline framework
+- **Backend**: Java with Javalin framework
 - **Frontend**: React.js
 - **Mobile**: Flutter
 - **Database**: PostgreSQL
 - **API**: RESTful architecture
-
----
-
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ---
